@@ -1,0 +1,76 @@
+### Constants
+@host = 192.168.100.5
+@port = 8111
+@user = admin
+@password = admin
+@full-path = admin:admin@192.168.100.5:8111
+
+### Generated test data
+@projectId = {{$random.alphabetic(10)}}
+@buildTypeId = {{$random.alphabetic(10)}}
+
+
+### Step 1: Create project
+# @no-cookie-jar
+POST http://{{full-path}}/app/rest/projects
+Content-Type: application/json
+Accept: application/json
+
+{
+  "parentProject": {
+    "locator": "_Root"
+  },
+  "name": "{{projectId}}",
+  "id": "{{projectId}}",
+  "copyAllAssociatedSettings": true
+}
+
+### Step 2: Create build configuration
+# @no-cookie-jar
+POST http://{{full-path}}/app/rest/buildTypes
+Content-Type: application/json
+Accept: application/json
+
+{
+  "id": "{{buildTypeId}}",
+  "name": "{{buildTypeId}}",
+  "project": {
+    "id": "{{projectId}}"
+  },
+  "parameters": {
+    "property": [
+      {
+        "name": "myBuildParameter",
+        "value": "myValue"
+      }
+    ]
+  },
+  "steps": {
+    "step": [
+      {
+        "name": "myCommandLineStep",
+        "type": "simpleRunner",
+        "properties": {
+          "property": [
+            {
+              "name": "script.content",
+              "value": "echo 'Hello World!'"
+            }
+          ]
+        }
+      }
+    ]
+  }
+}
+
+### Step 3: Run build
+# @no-cookie-jar
+POST http://{{full-path}}/app/rest/buildQueue
+Content-Type: application/json
+Accept: application/json
+
+{
+  "buildType": {
+    "id": "{{buildTypeId}}"
+  }
+}
