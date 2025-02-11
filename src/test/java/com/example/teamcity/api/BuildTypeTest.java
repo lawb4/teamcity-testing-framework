@@ -12,10 +12,7 @@ import static io.qameta.allure.Allure.step;
 public class BuildTypeTest extends BaseApiTest {
     @Test
     @DisplayName("User should be able to create build type")
-    @Tags({
-            @Tag("Positive"),
-            @Tag("CRUD")
-    })
+    @Tags({@Tag("Positive"), @Tag("CRUD")})
     public void userCreatesBuildConfigurationTest() {
         step("Create user");
         step("Create project by user");
@@ -25,10 +22,7 @@ public class BuildTypeTest extends BaseApiTest {
 
     @Test
     @DisplayName("User should not be able to create two build types with the same id")
-    @Tags({
-            @Tag("Negative"),
-            @Tag("CRUD")
-    })
+    @Tags({@Tag("Negative"), @Tag("CRUD")})
     public void userCreatesTwoBuildTypesWithTheSameIdTest() {
         step("Create user");
         step("Create project by user");
@@ -39,10 +33,7 @@ public class BuildTypeTest extends BaseApiTest {
 
     @Test
     @DisplayName("Project admin should be able to create build type for their project")
-    @Tags({
-            @Tag("Positive"),
-            @Tag("Roles")
-    })
+    @Tags({@Tag("Positive"), @Tag("Roles")})
     public void projectAdminCreatesBuildTypeTest() {
         step("Create user");
         step("Create project");
@@ -54,10 +45,7 @@ public class BuildTypeTest extends BaseApiTest {
 
     @Test
     @DisplayName("Project admin should not be able to create build type for not their project")
-    @Tags({
-            @Tag("Negative"),
-            @Tag("Roles")
-    })
+    @Tags({@Tag("Negative"), @Tag("Roles")})
     public void projectAdminCreatesBuildTypeForAnotherUserProjectTest() {
         step("Create user1");
         step("Create project1");
