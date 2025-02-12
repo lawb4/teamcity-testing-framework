@@ -14,6 +14,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <rest-assured.version>5.5.0</rest-assured.version>
         <lombok.version>1.18.36</lombok.version>
+        <junit-jupiter.version>5.11.4</junit-jupiter.version>
         <allure-junit5.version>2.29.1</allure-junit5.version>
     </properties>
 
@@ -31,7 +32,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
