@@ -19,8 +19,9 @@ public class BuildTypeTest extends BaseApiTest {
     @DisplayName("User should be able to create build type")
     @Tags({@Tag("Positive"), @Tag("CRUD")})
     public void userCreatesBuildConfigurationTest() {
+        var user = generate(User.class);
+
         step("Create user", () -> {
-            var user = generate(User.class);
 
             var requester = new CheckedRequest<User>(Specifications.superUserAuthSpec(), Endpoint.USERS);
             requester.create(user);
