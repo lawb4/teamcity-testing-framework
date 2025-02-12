@@ -18,7 +18,14 @@ public class BuildTypeTest extends BaseApiTest {
     @DisplayName("User should be able to create build type")
     @Tags({@Tag("Positive"), @Tag("CRUD")})
     public void userCreatesBuildConfigurationTest() {
-        step("Create user");
+        step("Create user", () -> {
+            var user = User.builder()
+                    .username("username5")
+                    .password("password5").build();
+
+            var requester = new CheckedRequest<User>(Specifications.superUserAuthSpec(), Endpoint.USERS);
+            requester.create(user);
+        });
         step("Create project by user");
         step("Create buildType for project by user");
         step("Check buildType was created successfully with correct data");
@@ -28,14 +35,7 @@ public class BuildTypeTest extends BaseApiTest {
     @DisplayName("User should not be able to create two build types with the same id")
     @Tags({@Tag("Negative"), @Tag("CRUD")})
     public void userCreatesTwoBuildTypesWithTheSameIdTest() {
-        step("Create user", () -> {
-            var user = User.builder()
-                    .username("username5")
-                    .password("password5").build();
-
-            var requester = new CheckedRequest<User>(Specifications.superUserAuthSpec(), Endpoint.USERS);
-            requester.create(user);
-        });
+        step("Create user");
         step("Create project by user");
         step("Create buildType1 for project by user");
         step("Create buildType2 with the same id as buildType1 for project by user");
