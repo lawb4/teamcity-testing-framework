@@ -10,10 +10,9 @@ public class DummyTest extends BaseApiTest {
     public void userShouldBeAbleToGetAllProjects() {
         RestAssured
                 .given()
-                .spec(Specifications.getSpec()
-                        .authSpec(User.builder()
-                                .username("admin")
-                                .password("admin").build()))
+                .spec(Specifications.authSpec(User.builder()
+                        .username("admin")
+                        .password("admin").build()))
                 .get("/app/rest/projects");
     }
 }
