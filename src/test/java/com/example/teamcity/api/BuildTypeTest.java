@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
 
+import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 import static io.qameta.allure.Allure.step;
 
 @Tag("Regression")
@@ -19,9 +20,7 @@ public class BuildTypeTest extends BaseApiTest {
     @Tags({@Tag("Positive"), @Tag("CRUD")})
     public void userCreatesBuildConfigurationTest() {
         step("Create user", () -> {
-            var user = User.builder()
-                    .username("username5")
-                    .password("password5").build();
+            var user = generate(User.class);
 
             var requester = new CheckedRequest<User>(Specifications.superUserAuthSpec(), Endpoint.USERS);
             requester.create(user);
