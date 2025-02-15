@@ -3,7 +3,6 @@ package com.example.teamcity.api;
 
 import com.example.teamcity.api.models.BuildType;
 import com.example.teamcity.api.models.Project;
-import com.example.teamcity.api.models.User;
 import com.example.teamcity.api.requests.checked.CheckedRequests;
 import com.example.teamcity.api.requests.unchecked.UncheckedRequest;
 import com.example.teamcity.api.spec.Specifications;
@@ -26,22 +25,17 @@ public class BuildTypeTest extends BaseApiTest {
     @DisplayName("User should be able to create build type")
     @Tags({@Tag("Positive"), @Tag("CRUD")})
     public void userCreatesBuildTypeTest() {
-        var user = generate(User.class);
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
-        superUserCheckedRequests.getRequest(USERS).create(user);
-        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(user));
+        userCheckedRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
 
-        var project = generate(Project.class);
+        userCheckedRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
 
-        project = userCheckedRequests.<Project>getRequest(PROJECTS).create(project);
+        var createdBuildType = userCheckedRequests.<BuildType>getRequest(BUILD_TYPES)
+                .read(testData.getBuildType().getId());
 
-        var buildType = generate(Collections.singletonList(project), BuildType.class);
-
-        userCheckedRequests.getRequest(BUILD_TYPES).create(buildType);
-
-        var createdBuildType = userCheckedRequests.<BuildType>getRequest(BUILD_TYPES).read(buildType.getId());
-
-        softly.assertThat(buildType.getName())
+        softly.assertThat(testData.getBuildType().getName())
                 .as("Build type name is not correct")
                 .isEqualTo(createdBuildType.getName());
     }
@@ -50,23 +44,19 @@ public class BuildTypeTest extends BaseApiTest {
     @DisplayName("User should not be able to create two build types with the same id")
     @Tags({@Tag("Negative"), @Tag("CRUD")})
     public void userCreatesTwoBuildTypesWithTheSameIdTest() {
-        var user = generate(User.class);
+        var buildTypeWithSameId = generate(Collections.singletonList(testData.getProject()), BuildType.class,
+                testData.getBuildType().getId());
 
-        superUserCheckedRequests.getRequest(USERS).create(user);
-        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(user));
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
-        var project = generate(Project.class);
-        project = userCheckedRequests.<Project>getRequest(PROJECTS).create(project);
+        userCheckedRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
 
-        var buildType1 = generate(Collections.singletonList(project), BuildType.class);
-        var buildType2 = generate(Collections.singletonList(project), BuildType.class,
-                buildType1.getId());
-
-        userCheckedRequests.getRequest(BUILD_TYPES).create(buildType1);
-        new UncheckedRequest(Specifications.authSpec(user), BUILD_TYPES)
-                .create(buildType2)
+        userCheckedRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
+        new UncheckedRequest(Specifications.authSpec(testData.getUser()), BUILD_TYPES)
+                .create(buildTypeWithSameId)
                 .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
-                .body(Matchers.containsString("The build configuration / template ID \"%s\" is already used by another configuration or template".formatted(buildType1.getId())));
+                .body(Matchers.containsString("The build configuration / template ID \"%s\" is already used by another configuration or template".formatted(testData.getBuildType().getId())));
     }
 
     @Test
