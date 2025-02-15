@@ -4,9 +4,11 @@ import com.example.teamcity.api.annotations.Optional;
 import com.example.teamcity.api.annotations.Parameterizable;
 import com.example.teamcity.api.annotations.Random;
 import com.example.teamcity.api.models.BaseModel;
+import com.example.teamcity.api.models.TestData;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -80,7 +82,28 @@ public final class TestDataGenerator {
         }
     }
 
-    // Метод, чтобы сгенерировать одну сущность. Передает пустой параметр generatedModels
+    public static TestData generate() {
+        // We loop through all fields of TestData and for each field that extends BaseModel we call generate() passing existing entities
+        try {
+            var instance = TestData.class.getDeclaredConstructor().newInstance();
+            var generatedModels = new ArrayList<BaseModel>();
+            for (var field : TestData.class.getDeclaredFields()) {
+                field.setAccessible(true);
+                if (BaseModel.class.isAssignableFrom(field.getType())) {
+                    var generatedModel = generate(generatedModels, field.getType().asSubclass(BaseModel.class));
+                    field.set(instance, generatedModel);
+                    generatedModels.add(generatedModel);
+                }
+                field.setAccessible(false);
+            }
+            return instance;
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                 NoSuchMethodException e) {
+            throw new IllegalStateException("Cannot generate test data", e);
+        }
+    }
+
+    // Method to generate one entity which passed an empty `generatedModels` parameter
     public static <T extends BaseModel> T generate(Class<T> generatorClass, Object... parameters) {
         return generate(Collections.emptyList(), generatorClass, parameters);
     }
