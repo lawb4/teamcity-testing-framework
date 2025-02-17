@@ -15,4 +15,8 @@ public final class RandomData {
                 Math.max(length - TEST_PREFIX.length(), MAX_LENGTH)
         );
     }
+
+    public static String getStringStartingWithDigit() {
+        return RandomStringUtils.randomNumeric(1) + TEST_PREFIX + RandomStringUtils.randomAlphabetic(MAX_LENGTH);
+    }
 }
