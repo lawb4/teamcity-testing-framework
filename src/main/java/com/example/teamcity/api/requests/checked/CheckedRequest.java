@@ -49,7 +49,7 @@ public class CheckedRequest<T extends BaseModel> extends Request implements Crud
     public Object delete(String id) {
         return uncheckedRequest
                 .delete(id)
-                .then().assertThat().statusCode(HttpStatus.SC_OK)
+                .then().assertThat().statusCode(HttpStatus.SC_NO_CONTENT)
                 .extract().asString();
     }
 }
