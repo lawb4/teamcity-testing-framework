@@ -22,7 +22,7 @@ import static io.qameta.allure.Allure.step;
 @Tag("Regression")
 public class BuildTypeTest extends BaseApiTest {
     @Test
-    @DisplayName("User should be able to create build type")
+    @DisplayName("User should be able to create a build type")
     @Tags({@Tag("Positive"), @Tag("CRUD")})
     public void userCreatesBuildTypeTest() {
         superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
@@ -60,7 +60,7 @@ public class BuildTypeTest extends BaseApiTest {
     }
 
     @Test
-    @DisplayName("Project admin should be able to create build type for their project")
+    @DisplayName("Project admin should be able to create a build type for their project")
     @Tags({@Tag("Positive"), @Tag("Roles")})
     public void projectAdminCreatesBuildTypeTest() {
         step("Create user");
@@ -72,7 +72,7 @@ public class BuildTypeTest extends BaseApiTest {
     }
 
     @Test
-    @DisplayName("Project admin should not be able to create build type for not their project")
+    @DisplayName("Project admin should not be able to create a build type for not their project")
     @Tags({@Tag("Negative"), @Tag("Roles")})
     public void projectAdminCreatesBuildTypeForAnotherUserProjectTest() {
         step("Create user1");
