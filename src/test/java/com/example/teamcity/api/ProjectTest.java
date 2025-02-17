@@ -18,7 +18,6 @@ import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 
 @Tag("Regression")
 public class ProjectTest extends BaseApiTest {
-
     @Test
     @DisplayName("User should be able to create a project")
     @Tags({@Tag("Positive"), @Tag("CRUD")})
@@ -59,14 +58,14 @@ public class ProjectTest extends BaseApiTest {
     @DisplayName("User should not be able to create two projects with the same name")
     @Tags({@Tag("Negative"), @Tag("CRUD")})
     public void userCreatesTwoProjectsWithSameNameTest() {
-        var projectWithSameName = testData.getProject();
+        var project = testData.getProject();
 
         superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
         var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
         userCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
-                .create(projectWithSameName)
+                .create(project)
                 .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
                 .body(Matchers.containsString("Project with this name already exists: %s"
                         .formatted(testData.getProject().getName())));
@@ -76,15 +75,13 @@ public class ProjectTest extends BaseApiTest {
     @DisplayName("User should not be able to create a project with an empty name")
     @Tags({@Tag("Negative"), @Tag("CRUD")})
     public void userCreatesProjectWithEmptyName() {
-        var projectWithEmptyName = generate(Project.class);
-        projectWithEmptyName.setName("");
+        var project = generate(Project.class);
+        project.setName("");
 
         superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
-        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
-        userCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
-                .create(projectWithEmptyName)
+                .create(project)
                 .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
                 .body(Matchers.containsString("Project name cannot be empty"));
     }
@@ -93,15 +90,13 @@ public class ProjectTest extends BaseApiTest {
     @DisplayName("User should not be able to create a project with an empty Project ID")
     @Tags({@Tag("Negative"), @Tag("CRUD")})
     public void userCreatesProjectWithEmptyProjectId() {
-        var projectWithEmptyName = generate(Project.class);
-        projectWithEmptyName.setId("");
+        var project = generate(Project.class);
+        project.setId("");
 
         superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
-        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
-        userCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
-                .create(projectWithEmptyName)
+                .create(project)
                 .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
                 .body(Matchers.containsString("Project ID must not be empty"));
     }
