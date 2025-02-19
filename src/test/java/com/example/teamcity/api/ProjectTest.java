@@ -11,9 +11,12 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import static com.example.teamcity.api.enums.Endpoint.PROJECTS;
 import static com.example.teamcity.api.enums.Endpoint.USERS;
+import static com.example.teamcity.api.enums.Endpoint.*;
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 
 @Tag("Regression")
@@ -21,7 +24,7 @@ public class ProjectTest extends BaseApiTest {
     @Test
     @DisplayName("User should be able to create a project")
     @Tags({@Tag("Positive"), @Tag("CRUD")})
-    public void userCreatesProjectTest() {
+    public void userSuccessfullyCreatesProjectTest() {
         superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
         var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
@@ -38,7 +41,7 @@ public class ProjectTest extends BaseApiTest {
     @Test
     @DisplayName("User should be able to create a project with a maximum Project Id length (225 characters)")
     @Tags({@Tag("Positive"), @Tag("CRUD")})
-    public void userCreatesProjectWithMaxProjectIdLengthTest() {
+    public void userSuccessfullyCreatesProjectWithMaxProjectIdLengthTest() {
         superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
         var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
@@ -50,8 +53,67 @@ public class ProjectTest extends BaseApiTest {
                 .read(testData.getProject().getId());
 
         softly.assertThat(testData.getProject().getId())
-                .as("Project id is not valid")
+                .as("Project id length is not valid")
                 .isEqualTo(createdProject.getId());
+    }
+
+    @Test
+    @DisplayName("User should be able to create a project with cyrillic characters in its name")
+    @Tags({@Tag("Positive"), @Tag("CRUD")})
+    public void userSuccessfullyCreatesProjectWithCyrillicCharactersNameTest() {
+        var project = testData.getProject();
+        project.setName(RandomData.getStringWithCyrillic());
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        userCheckedRequests.getRequest(PROJECTS).create(project);
+
+        var createdProject = userCheckedRequests.<Project>getRequest(PROJECTS)
+                .read(project.getId());
+
+        softly.assertThat(project.getName())
+                .as("Project name is not correct")
+                .isEqualTo(createdProject.getName());
+    }
+
+    @Test
+    @DisplayName("User should be able to create a project with Project ID ending with 'underscore' special character")
+    @Tags({@Tag("Positive"), @Tag("CRUD")})
+    public void userSuccessfullyCreatesProjectWithProjectIdEndingWithUnderscoreTest() {
+        var project = testData.getProject();
+        project.setId(RandomData.getStringEndsWithSpecialCharacter('_'));
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        userCheckedRequests.getRequest(PROJECTS).create(project);
+
+        var createdProject = userCheckedRequests.<Project>getRequest(PROJECTS)
+                .read(project.getId());
+
+        softly.assertThat(project.getName())
+                .as("Project id is not correct")
+                .isEqualTo(createdProject.getName());
+    }
+
+    @Test
+    @DisplayName("User should be able to create a project with a Parent Project not equal '_Root' project")
+    @Tags({@Tag("Positive"), @Tag("CRUD")})
+    public void userSuccessfullyCreatesProjectWithParentProjectIdNotEqualToRootProjectTest() {
+        var project1 = testData.getProject();
+        var project2 = generate().getProject();
+        project2.setParentProject(project1);
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        userCheckedRequests.getRequest(PROJECTS).create(project1);
+        var createdProject2 = userCheckedRequests.<Project>getRequest(PROJECTS).create(project2);
+
+        softly.assertThat(createdProject2.getParentProject().getId())
+                .as("parentProjectId = _Root")
+                .isEqualTo(project1.getId());
     }
 
     @Test
@@ -130,5 +192,52 @@ public class ProjectTest extends BaseApiTest {
                 .create(project)
                 .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
                 .body(Matchers.containsString("Project ID \"%s\" is invalid: it is %d characters long while the maximum length is 225. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), projectIdLength)));
+    }
+
+    @Test
+    @DisplayName("User should not be able to create a project with cyrillic characters in its id")
+    @Tags({@Tag("Negative"), @Tag("CRUD")})
+    public void userCreatesProjectWithCyrillicCharactersInProjectIdTest() {
+        var project = testData.getProject();
+        project.setId(RandomData.getStringWithCyrillic());
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+
+        new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
+                .create(project)
+                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                .body(Matchers.containsString("Project ID \"%s\" is invalid: contains non-latin letter '%c'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), project.getId().charAt(5))));
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.example.teamcity.api.generators.RandomData#invalidCharacters")
+    @DisplayName("User should not be able to create a project with Project ID starting with special characters")
+    @Tags({@Tag("Negative"), @Tag("CRUD")})
+    public void userCreatesProjectStartingWithSpecialCharactersTest(char specialCharacter) {
+        var project = testData.getProject();
+        project.setId(RandomData.getStringStartsWithSpecialCharacter(specialCharacter));
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+
+        new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
+                .create(project)
+                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                .body(Matchers.containsString("Project ID \"%s\" is invalid: starts with non-letter character '%c'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), specialCharacter)));
+    }
+
+    @ParameterizedTest
+    @MethodSource("com.example.teamcity.api.generators.RandomData#invalidCharactersExceptUnderscore")
+    @DisplayName("User should not be able to create a project with Project ID containing special characters (except underscore)")
+    @Tags({@Tag("Negative"), @Tag("CRUD")})
+    public void userCreatesProjectContainsSpecialCharactersExceptUnderscoreTest(char specialCharacter) {
+        var project = testData.getProject();
+        project.setId(RandomData.getStringEndsWithSpecialCharacter(specialCharacter));
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+
+        new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
+                .create(project)
+                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
+                .body(Matchers.containsString("Project ID \"%s\" is invalid: contains unsupported character '%c'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), specialCharacter)));
     }
 }
