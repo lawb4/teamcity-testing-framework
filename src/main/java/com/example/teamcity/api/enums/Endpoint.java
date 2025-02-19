@@ -10,10 +10,11 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum Endpoint {
-    BUILD_TYPES("/app/rest/buildTypes", BuildType.class),
-    PROJECTS("/app/rest/projects", Project.class),
-    USERS("/app/rest/users", User.class);
+    BUILD_TYPES("/app/rest/buildTypes", "btLocator", BuildType.class),
+    PROJECTS("/app/rest/projects", "projectLocator", Project.class),
+    USERS("/app/rest/users", "userLocator", User.class);
 
     private final String url;
+    private final String locatorParam;
     private final Class<? extends BaseModel> modelClass;
 }
