@@ -86,4 +86,23 @@ public class BuildTypeTest extends BaseApiTest {
         step("Create buildType for project1 by user2");
         step("Check buildType was not created with forbidden code");
     }
+
+    @Test
+    @DisplayName("User should be able to successfully run a build with 'Hello, World!' console output")
+    @Tags({@Tag("Positive"), @Tag("CRUD")})
+    public void userSuccessfullyRunsBuildWithConsoleOutputTest() {
+        // создать юзера
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+        // создать проект
+        userCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
+        //создать билд
+        userCheckedRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
+        var createdBuildType = userCheckedRequests.getRequest(BUILD_TYPES).read(testData.getBuildType().getId());
+
+        testData.getBuild().setBuildTypeId(testData.getBuildType().getId());
+
+        // запустить билд с аутпутом
+        userCheckedRequests.getRequest(BUILD_QUEUE).create(testData.getBuild());
+    }
 }
