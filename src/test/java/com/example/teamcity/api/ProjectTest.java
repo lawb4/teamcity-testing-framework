@@ -15,7 +15,7 @@ import static com.example.teamcity.api.enums.Endpoint.USERS;
 public class ProjectTest extends BaseApiTest {
     @Test
     @DisplayName("User should be able to find a project by its name")
-    @Tags({@Tag("Positive"), @Tag("CRUD")})
+    @Tags({@Tag("Positive"), @Tag("Search")})
     public void userFindsProjectByItsName() {
         superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
 
