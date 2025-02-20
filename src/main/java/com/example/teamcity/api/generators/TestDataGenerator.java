@@ -4,6 +4,7 @@ import com.example.teamcity.api.annotations.Optional;
 import com.example.teamcity.api.annotations.Parameterizable;
 import com.example.teamcity.api.annotations.Random;
 import com.example.teamcity.api.models.BaseModel;
+import com.example.teamcity.api.models.Project;
 import com.example.teamcity.api.models.TestData;
 
 import java.lang.reflect.InvocationTargetException;
@@ -71,6 +72,13 @@ public final class TestDataGenerator {
                                         generatedModels, typeClass.asSubclass(BaseModel.class), finalParameters))));
                             }
                         }
+                    }
+                } else if (field.getName().equals("parentProject")) {
+                    if (field.get(instance) == null) {
+                        field.set(instance, Project.builder()
+                                .id("_Root")
+                                .name("<Root project>")
+                                .build());
                     }
                 }
                 field.setAccessible(false);
