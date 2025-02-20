@@ -7,6 +7,7 @@ import com.example.teamcity.api.models.Role;
 import com.example.teamcity.api.requests.checked.CheckedRequests;
 import com.example.teamcity.api.requests.unchecked.UncheckedRequest;
 import com.example.teamcity.api.spec.Specifications;
+import com.example.teamcity.api.spec.ValidationResponseSpecifications;
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -103,20 +104,19 @@ public class BuildTypeTest extends BaseApiTest {
         superUserCheckedRequests.getRequest(USERS).create(userWithProjectAdminRole);
 
         // (Test data) Prepare a new project
-        Project project1 = generate(Project.class);
+        Project project = generate(Project.class);
         // (API) SuperUser creates a new project
-        superUserCheckedRequests.getRequest(PROJECTS).create(project1);
+        superUserCheckedRequests.getRequest(PROJECTS).create(project);
 
         // (Test data) Set project1 as a project for which a build type will be created
-        testData.getBuildType().setProject(project1);
+        testData.getBuildType().setProject(project);
 
         // (Test data) Prepare a build type for project1
-        var buildTypeForProject1 = generate(Collections.singletonList(project1), BuildType.class);
+        var buildTypeForProject = generate(Collections.singletonList(project), BuildType.class);
 
         // Check buildTypeForProject1 was not created due to insufficient permissions
         new UncheckedRequest(Specifications.authSpec(userWithProjectAdminRole), BUILD_TYPES)
-                .create(buildTypeForProject1)
-                .then().assertThat().statusCode(HttpStatus.SC_FORBIDDEN)
-                .body(Matchers.containsString("You do not have enough permissions to edit project with id: %s".formatted(project1.getId())));
+                .create(buildTypeForProject)
+                .then().spec(ValidationResponseSpecifications.checkProjectIdCannotStartWithDigit(project));
     }
 }
