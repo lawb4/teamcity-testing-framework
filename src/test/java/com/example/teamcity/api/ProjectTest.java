@@ -5,8 +5,7 @@ import com.example.teamcity.api.models.Project;
 import com.example.teamcity.api.requests.checked.CheckedRequests;
 import com.example.teamcity.api.requests.unchecked.UncheckedRequest;
 import com.example.teamcity.api.spec.Specifications;
-import org.apache.http.HttpStatus;
-import org.hamcrest.Matchers;
+import com.example.teamcity.api.spec.ValidationResponseSpecifications;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
@@ -127,9 +126,8 @@ public class ProjectTest extends BaseApiTest {
         userCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
-                .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
-                .body(Matchers.containsString("Project with this name already exists: %s"
-                        .formatted(testData.getProject().getName())));
+                .then().spec(ValidationResponseSpecifications
+                        .checkProjectWithNameAlreadyExists(testData.getProject().getName()));
     }
 
     @Test
@@ -143,8 +141,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
-                .then().assertThat().statusCode(HttpStatus.SC_BAD_REQUEST)
-                .body(Matchers.containsString("Project name cannot be empty"));
+                .then().spec(ValidationResponseSpecifications.checkProjectNameCannotBeEmpty());
     }
 
     @Test
@@ -158,8 +155,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
-                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .body(Matchers.containsString("Project ID must not be empty"));
+                .then().spec(ValidationResponseSpecifications.checkProjectIdMustNotBeEmpty());
     }
 
     @Test
@@ -173,8 +169,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
-                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .body(Matchers.containsString("Project ID \"%s\" is invalid: starts with non-letter character '%c'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), project.getId().charAt(0))));
+                .then().spec(ValidationResponseSpecifications.checkProjectIdCannotStartWithDigit(project));
     }
 
     @Test
@@ -189,8 +184,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
-                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .body(Matchers.containsString("Project ID \"%s\" is invalid: it is %d characters long while the maximum length is 225. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), projectIdLength)));
+                .then().spec(ValidationResponseSpecifications.checkProjectIdLengthCannotExceedMaximumValue(project, projectIdLength));
     }
 
     @Test
@@ -204,8 +198,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
-                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .body(Matchers.containsString("Project ID \"%s\" is invalid: contains non-latin letter '%c'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), project.getId().charAt(5))));
+                .then().spec(ValidationResponseSpecifications.checkProjectIdCannotContainCyrillicCharacters(project));
     }
 
     @ParameterizedTest
@@ -220,8 +213,7 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
-                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .body(Matchers.containsString("Project ID \"%s\" is invalid: starts with non-letter character '%c'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), specialCharacter)));
+                .then().spec(ValidationResponseSpecifications.checkProjectIdCannotStartWithSpecialCharacters(project, specialCharacter));
     }
 
     @ParameterizedTest
@@ -236,7 +228,6 @@ public class ProjectTest extends BaseApiTest {
 
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
-                .then().assertThat().statusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
-                .body(Matchers.containsString("Project ID \"%s\" is invalid: contains unsupported character '%c'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), specialCharacter)));
+                .then().spec(ValidationResponseSpecifications.checkProjectIdCannotContainSpecialCharactersExceptUnderscore(project, specialCharacter));
     }
 }
