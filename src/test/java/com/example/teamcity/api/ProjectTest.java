@@ -16,7 +16,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 
 import static com.example.teamcity.api.enums.Endpoint.PROJECTS;
 import static com.example.teamcity.api.enums.Endpoint.USERS;
-import static com.example.teamcity.api.enums.Endpoint.*;
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 
 @Tag("Regression")
@@ -33,9 +32,9 @@ public class ProjectTest extends BaseApiTest {
         var createdProject = userCheckedRequests.<Project>getRequest(PROJECTS)
                 .read(testData.getProject().getId());
 
-        softly.assertThat(testData.getProject().getName())
-                .as("Project name is not correct")
-                .isEqualTo(createdProject.getName());
+        softly.assertThat(createdProject)
+                .as("Project structure is not correct")
+                .isEqualTo(testData.getProject());
     }
 
     @Test
