@@ -29,6 +29,13 @@ public class ValidationResponseSpecifications {
                 .build();
     }
 
+    public static ResponseSpecification checkProjectIdIsUsedByAnotherProject(Project project) {
+        return new ResponseSpecBuilder()
+                .expectStatusCode(HttpStatus.SC_BAD_REQUEST)
+                .expectBody(Matchers.containsString("Project ID \"%s\" is already used by another project".formatted(project.getId())))
+                .build();
+    }
+
     public static ResponseSpecification checkProjectIdCannotStartWithDigit(Project project) {
         return new ResponseSpecBuilder()
                 .expectStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
@@ -61,6 +68,13 @@ public class ValidationResponseSpecifications {
         return new ResponseSpecBuilder()
                 .expectStatusCode(HttpStatus.SC_INTERNAL_SERVER_ERROR)
                 .expectBody(Matchers.containsString("Project ID \"%s\" is invalid: contains unsupported character '%c'. ID should start with a latin letter and contain only latin letters, digits and underscores (at most 225 characters)".formatted(project.getId(), specialCharacter)))
+                .build();
+    }
+
+    public static ResponseSpecification checkUserNotHaveCreateSubprojectPermissionForProject(Project project) {
+        return new ResponseSpecBuilder()
+                .expectStatusCode(HttpStatus.SC_FORBIDDEN)
+                .expectBody(Matchers.containsString("You do not have \"Create subproject\" permission in project with internal id: %s".formatted(project.getParentProject().getId())))
                 .build();
     }
 }

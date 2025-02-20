@@ -2,6 +2,7 @@ package com.example.teamcity.api;
 
 import com.example.teamcity.api.generators.RandomData;
 import com.example.teamcity.api.models.Project;
+import com.example.teamcity.api.models.Role;
 import com.example.teamcity.api.requests.checked.CheckedRequests;
 import com.example.teamcity.api.requests.unchecked.UncheckedRequest;
 import com.example.teamcity.api.spec.Specifications;
@@ -13,9 +14,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
+import java.util.Collections;
+
 import static com.example.teamcity.api.enums.Endpoint.PROJECTS;
 import static com.example.teamcity.api.enums.Endpoint.USERS;
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
+import static com.example.teamcity.api.models.Role.*;
 
 @Tag("Regression")
 public class ProjectTest extends BaseApiTest {
@@ -52,6 +56,64 @@ public class ProjectTest extends BaseApiTest {
 
         softly.assertThat(testData.getProject().getId())
                 .as("Project id length is not valid")
+                .isEqualTo(createdProject.getId());
+    }
+
+    @Test
+    @DisplayName("User should be able to create a project with a name containing more than 225 characters")
+    @Tags({@Tag("Positive"), @Tag("CRUD")})
+    public void userSuccessfullyCreatesProjectWithNameContainingAlotOfSymbolsTest() {
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        testData.getProject().setName(RandomData.getString(
+                RandomData.getRandomNumberExceedingLimits()));
+
+        userCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
+
+        var createdProject = userCheckedRequests.<Project>getRequest(PROJECTS)
+                .read(testData.getProject().getId());
+
+        softly.assertThat(testData.getProject().getId())
+                .as("Project id length is not valid")
+                .isEqualTo(createdProject.getId());
+    }
+
+    @Test
+    @DisplayName("User should be able to create a project with a Project Id containing latin letters and digits")
+    @Tags({@Tag("Positive"), @Tag("CRUD")})
+    public void userSuccessfullyCreatesProjectWithProjectIdContainingLatinLettersAndDigits() {
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        testData.getProject().setId(RandomData.getStringWithLatinLettersAndDigits());
+
+        userCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
+
+        var createdProject = userCheckedRequests.<Project>getRequest(PROJECTS)
+                .read(testData.getProject().getId());
+
+        softly.assertThat(testData.getProject().getId())
+                .as("Project id is not valid")
+                .isEqualTo(createdProject.getId());
+    }
+
+    @Test
+    @DisplayName("User should be able to create a project with a Project Id containing repeating symbols")
+    @Tags({@Tag("Positive"), @Tag("CRUD")})
+    public void userSuccessfullyCreatesProjectWithProjectIdContainingRepeatingSymbols() {
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        testData.getProject().setId(RandomData.getStringWithRepeatingSymbols());
+
+        userCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
+
+        var createdProject = userCheckedRequests.<Project>getRequest(PROJECTS)
+                .read(testData.getProject().getId());
+
+        softly.assertThat(testData.getProject().getId())
+                .as("Project id is not valid")
                 .isEqualTo(createdProject.getId());
     }
 
@@ -115,19 +177,58 @@ public class ProjectTest extends BaseApiTest {
     }
 
     @Test
-    @DisplayName("User should not be able to create two projects with the same name")
-    @Tags({@Tag("Negative"), @Tag("CRUD")})
-    public void userCreatesTwoProjectsWithSameNameTest() {
-        var project = testData.getProject();
+    @DisplayName("User should be able to create a project with a 'copyAllAssociatedSettings' setting = false")
+    @Tags({@Tag("Positive"), @Tag("CRUD")})
+    public void userSuccessfullyCreatesProjectWithCopyAllAssociatedSettingsFalseTest() {
+        testData.getProject().setCopyAllAssociatedSettings(false);
 
         superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
         var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
 
         userCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
+
+        var createdProject = userCheckedRequests.<Project>getRequest(PROJECTS)
+                .read(testData.getProject().getId());
+
+        softly.assertThat(createdProject.isCopyAllAssociatedSettings())
+                .as("copyAllAssociatedSettings = true")
+                .isEqualTo(testData.getProject().isCopyAllAssociatedSettings());
+    }
+
+    @Test
+    @DisplayName("User should not be able to create two projects with the same name")
+    @Tags({@Tag("Negative"), @Tag("CRUD")})
+    public void userCreatesTwoProjectsWithSameNameTest() {
+        var project1 = testData.getProject();
+        var project2 = generate().getProject();
+        project2.setName(project1.getName());
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        userCheckedRequests.getRequest(PROJECTS).create(project1);
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
-                .create(project)
+                .create(project2)
                 .then().spec(ValidationResponseSpecifications
                         .checkProjectWithNameAlreadyExists(testData.getProject().getName()));
+    }
+
+    @Test
+    @DisplayName("User should not be able to create two projects with the same Project ID")
+    @Tags({@Tag("Negative"), @Tag("CRUD")})
+    public void userCreatesTwoProjectsWithSameProjectIdTest() {
+        var project1 = testData.getProject();
+        var project2 = generate().getProject();
+        project2.setId(project1.getId());
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        userCheckedRequests.getRequest(PROJECTS).create(project1);
+        new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
+                .create(project2)
+                .then().spec(ValidationResponseSpecifications
+                        .checkProjectIdIsUsedByAnotherProject(project1));
     }
 
     @Test
@@ -156,6 +257,36 @@ public class ProjectTest extends BaseApiTest {
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
                 .then().spec(ValidationResponseSpecifications.checkProjectIdMustNotBeEmpty());
+    }
+
+    @Test
+    @DisplayName("User should not be able to create a project with an empty Name and empty Project ID")
+    @Tags({@Tag("Negative"), @Tag("CRUD")})
+    public void userCreatesProjectWithEmptyNameAndEmptyProjectId() {
+        var project = generate(Project.class);
+        project.setId("");
+        project.setName("");
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+
+        new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
+                .create(project)
+                .then().spec(ValidationResponseSpecifications.checkProjectNameCannotBeEmpty());
+    }
+
+    @Test
+    @DisplayName("User should not be able to create a project with an empty Name and invalid Project ID")
+    @Tags({@Tag("Negative"), @Tag("CRUD")})
+    public void userCreatesProjectWithEmptyNameAndInvalidProjectId() {
+        var project = generate(Project.class);
+        project.setId(RandomData.getStringStartingWithDigit());
+        project.setName("");
+
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+
+        new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
+                .create(project)
+                .then().spec(ValidationResponseSpecifications.checkProjectNameCannotBeEmpty());
     }
 
     @Test
@@ -229,5 +360,62 @@ public class ProjectTest extends BaseApiTest {
         new UncheckedRequest(Specifications.authSpec(testData.getUser()), PROJECTS)
                 .create(project)
                 .then().spec(ValidationResponseSpecifications.checkProjectIdCannotContainSpecialCharactersExceptUnderscore(project, specialCharacter));
+    }
+
+    @Test
+    @DisplayName("Project Viewer should not be able to create a project")
+    @Tags({@Tag("Negative"), @Tag("Roles")})
+    public void projectViewerCreatesProjectTest() {
+        // (API) SuperUser creates a Project for a User to be assigned to as Project Viewer
+        superUserCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
+        // (Test data) Prepare a new project to be created by a Project Viewer
+        var project = generate().getProject();
+
+        var userWithProjectViewerRole = testData.getUser();
+        userWithProjectViewerRole.getRoles().setRole(Collections.singletonList(
+                new Role(PROJECT_VIEWER, "p:%s".formatted(testData.getProject().getId()))));
+        superUserCheckedRequests.getRequest(USERS).create(userWithProjectViewerRole);
+
+        new UncheckedRequest(Specifications.authSpec(userWithProjectViewerRole), PROJECTS)
+                .create(project)
+                .then().spec(ValidationResponseSpecifications.checkUserNotHaveCreateSubprojectPermissionForProject(project));
+    }
+
+    @Test
+    @DisplayName("Project Developer should not be able to create a project")
+    @Tags({@Tag("Negative"), @Tag("Roles")})
+    public void projectDeveloperCreatesProjectTest() {
+        // (API) SuperUser creates a Project for a User to be assigned to as Project Developer
+        superUserCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
+        // (Test data) Prepare a new project to be created by a Project Developer
+        var project = generate().getProject();
+
+        var userWithProjectDeveloperRole = testData.getUser();
+        userWithProjectDeveloperRole.getRoles().setRole(Collections.singletonList(
+                new Role(PROJECT_DEVELOPER, "p:%s".formatted(testData.getProject().getId()))));
+        superUserCheckedRequests.getRequest(USERS).create(userWithProjectDeveloperRole);
+
+        new UncheckedRequest(Specifications.authSpec(userWithProjectDeveloperRole), PROJECTS)
+                .create(project)
+                .then().spec(ValidationResponseSpecifications.checkUserNotHaveCreateSubprojectPermissionForProject(project));
+    }
+
+    @Test
+    @DisplayName("Agent Manager should not be able to create a project")
+    @Tags({@Tag("Negative"), @Tag("Roles")})
+    public void agentManagerCreatesProjectTest() {
+        // (API) SuperUser creates a Project for a User to be assigned to as Agent Manager
+        superUserCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
+        // (Test data) Prepare a new project to be created by a Agent Manager
+        var project = generate().getProject();
+
+        var userWithAgentManagerRole = testData.getUser();
+        userWithAgentManagerRole.getRoles().setRole(Collections.singletonList(
+                new Role(AGENT_MANAGER, "p:%s".formatted(testData.getProject().getId()))));
+        superUserCheckedRequests.getRequest(USERS).create(userWithAgentManagerRole);
+
+        new UncheckedRequest(Specifications.authSpec(userWithAgentManagerRole), PROJECTS)
+                .create(project)
+                .then().spec(ValidationResponseSpecifications.checkUserNotHaveCreateSubprojectPermissionForProject(project));
     }
 }

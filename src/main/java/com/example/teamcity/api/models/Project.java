@@ -24,4 +24,6 @@ public class Project extends BaseModel {
     @Optional
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Project parentProject;
+    @Optional
+    private boolean copyAllAssociatedSettings;
 }
