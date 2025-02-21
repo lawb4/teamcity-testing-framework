@@ -117,6 +117,6 @@ public class BuildTypeTest extends BaseApiTest {
         // Check buildTypeForProject1 was not created due to insufficient permissions
         new UncheckedRequest(Specifications.authSpec(userWithProjectAdminRole), BUILD_TYPES)
                 .create(buildTypeForProject)
-                .then().spec(ValidationResponseSpecifications.checkProjectIdCannotStartWithDigit(project));
+                .then().spec(ValidationResponseSpecifications.checkUserNotHavePermissionsToEditProject(project));
     }
 }

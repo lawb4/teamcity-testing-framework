@@ -7,7 +7,7 @@ import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
 
 public class ValidationResponseSpecifications {
-    public static ResponseSpecification checkProjectIdCannotStartWithDigit(Project project) {
+    public static ResponseSpecification checkUserNotHavePermissionsToEditProject(Project project) {
         return new ResponseSpecBuilder()
                 .expectStatusCode(HttpStatus.SC_FORBIDDEN)
                 .expectBody(Matchers.containsString("You do not have enough permissions to edit project with id: %s".formatted(project.getId())))
