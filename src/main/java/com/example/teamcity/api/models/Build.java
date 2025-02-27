@@ -1,5 +1,6 @@
 package com.example.teamcity.api.models;
 
+import com.example.teamcity.api.annotations.Optional;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,11 +12,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Step extends BaseModel {
+public class Build extends BaseModel {
+    @Optional
     private String id;
-    private String name;
-    @Builder.Default
-    private String type = "simpleRunner";
-
-    private Properties properties;
+    private String buildTypeId;
 }

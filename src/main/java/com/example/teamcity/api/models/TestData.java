@@ -7,4 +7,5 @@ public class TestData {
     private User user;
     private Project project;
     private BuildType buildType;
+    private Build build;
 }
