@@ -12,6 +12,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Role extends BaseModel {
+    public final static String PROJECT_VIEWER = "PROJECT_VIEWER";
+    public final static String PROJECT_DEVELOPER = "PROJECT_DEVELOPER";
+    public final static String AGENT_MANAGER = "AGENT_MANAGER";
+
     @Builder.Default
     private String roleId = "SYSTEM_ADMIN";
     @Builder.Default
