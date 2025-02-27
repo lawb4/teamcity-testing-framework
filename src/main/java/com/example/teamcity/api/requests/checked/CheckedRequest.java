@@ -5,12 +5,13 @@ import com.example.teamcity.api.generators.TestDataStorage;
 import com.example.teamcity.api.models.BaseModel;
 import com.example.teamcity.api.requests.CrudInterface;
 import com.example.teamcity.api.requests.Request;
+import com.example.teamcity.api.requests.SearchInterface;
 import com.example.teamcity.api.requests.unchecked.UncheckedRequest;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
 
 @SuppressWarnings("unchecked")
-public class CheckedRequest<T extends BaseModel> extends Request implements CrudInterface {
+public class CheckedRequest<T extends BaseModel> extends Request implements CrudInterface, SearchInterface {
     private UncheckedRequest uncheckedRequest;
 
     public CheckedRequest(RequestSpecification spec, Endpoint endpoint) {
@@ -51,5 +52,14 @@ public class CheckedRequest<T extends BaseModel> extends Request implements Crud
                 .delete(id)
                 .then().assertThat().statusCode(HttpStatus.SC_NO_CONTENT)
                 .extract().asString();
+    }
+
+    @Override
+    public T search(String locatorValue) {
+        return (T) uncheckedRequest
+                .search(locatorValue)
+                .then()
+                .statusCode(HttpStatus.SC_OK)
+                .extract().as(endpoint.getModelClass());
     }
 }

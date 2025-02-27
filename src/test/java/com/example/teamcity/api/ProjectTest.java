@@ -11,6 +11,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Tags;
 import org.junit.jupiter.api.Test;
+
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -24,6 +25,23 @@ import static com.example.teamcity.api.models.Role.*;
 @Tag("Regression")
 public class ProjectTest extends BaseApiTest {
     @Test
+    @DisplayName("User should be able to find a project by its name")
+    @Tags({@Tag("Positive"), @Tag("Search")})
+    public void userFindsProjectByItsName() {
+        superUserCheckedRequests.getRequest(USERS).create(testData.getUser());
+
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(testData.getUser()));
+
+        userCheckedRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
+        var createdProject = userCheckedRequests.<Project>getRequest(PROJECTS).read(testData.getProject().getId());
+
+        userCheckedRequests.getRequest(PROJECTS).search("name:" + testData.getProject().getName());
+
+        softly.assertThat(testData.getProject().getName())
+                .as("Project was not found")
+                .isEqualTo(createdProject.getName());
+    }
+
     @DisplayName("User should be able to create a project")
     @Tags({@Tag("Positive"), @Tag("CRUD")})
     public void userSuccessfullyCreatesProjectTest() {
