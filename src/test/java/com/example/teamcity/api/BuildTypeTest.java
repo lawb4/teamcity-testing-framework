@@ -3,9 +3,11 @@ package com.example.teamcity.api;
 
 import com.example.teamcity.api.models.BuildType;
 import com.example.teamcity.api.models.Project;
+import com.example.teamcity.api.models.Role;
 import com.example.teamcity.api.requests.checked.CheckedRequests;
 import com.example.teamcity.api.requests.unchecked.UncheckedRequest;
 import com.example.teamcity.api.spec.Specifications;
+import com.example.teamcity.api.spec.ValidationResponseSpecifications;
 import org.apache.http.HttpStatus;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
@@ -17,7 +19,6 @@ import java.util.Collections;
 
 import static com.example.teamcity.api.enums.Endpoint.*;
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
-import static io.qameta.allure.Allure.step;
 
 @Tag("Regression")
 public class BuildTypeTest extends BaseApiTest {
@@ -63,27 +64,59 @@ public class BuildTypeTest extends BaseApiTest {
     @DisplayName("Project admin should be able to create a build type for their project")
     @Tags({@Tag("Positive"), @Tag("Roles")})
     public void projectAdminCreatesBuildTypeTest() {
-        step("Create user");
-        step("Create project");
-        step("Grant user PROJECT_ADMIN role in project");
+        // (API) SuperUser creates a Project for a User to be assigned to as Project Admin
+        superUserCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
 
-        step("Create buildType for project by user (PROJECT_ADMIN)");
-        step("Check buildType was created successfully");
+        // (Test data) Prepare a user with Project Admin role for the project created by SuperUser
+        var userWithProjectAdminRole = testData.getUser();
+        testData.getUser().getRoles().setRole(Collections.singletonList(
+                new Role("PROJECT_ADMIN", "p:%s".formatted(testData.getProject().getId()))));
+        // (API) SuperUser creates a user with Project Admin role
+        superUserCheckedRequests.getRequest(USERS).create(userWithProjectAdminRole);
+
+        // "Logging in" as userWithProjectAdminRole
+        var userCheckedRequests = new CheckedRequests(Specifications.authSpec(userWithProjectAdminRole));
+
+        // (API) userWithProjectAdminRole creates a build type for the project created by SuperUser
+        userCheckedRequests.getRequest(BUILD_TYPES).create(testData.getBuildType());
+
+        // Check build type was created successfully
+        var createdBuildType = userCheckedRequests.<BuildType>getRequest(BUILD_TYPES)
+                .read(testData.getBuildType().getId());
+
+        softly.assertThat(testData.getBuildType().getName())
+                .as("Build type name is not correct")
+                .isEqualTo(createdBuildType.getName());
     }
 
     @Test
     @DisplayName("Project admin should not be able to create a build type for not their project")
     @Tags({@Tag("Negative"), @Tag("Roles")})
     public void projectAdminCreatesBuildTypeForAnotherUserProjectTest() {
-        step("Create user1");
-        step("Create project1");
-        step("Grant user1 PROJECT_ADMIN role in project1");
+        // (API) SuperUser creates a Project for a User to be assigned to as Project Admin
+        superUserCheckedRequests.getRequest(PROJECTS).create(testData.getProject());
 
-        step("Create user2");
-        step("Create project2");
-        step("Grant user2 PROJECT_ADMIN role in project2");
+        // (Test data) Prepare a user with Project Admin role for the project created by SuperUser
+        var userWithProjectAdminRole = testData.getUser();
+        userWithProjectAdminRole.getRoles().setRole(Collections.singletonList(
+                new Role("PROJECT_ADMIN", "p:%s".formatted(testData.getProject().getId()))));
+        // (API) SuperUser creates a user with Project Admin role
+        superUserCheckedRequests.getRequest(USERS).create(userWithProjectAdminRole);
 
-        step("Create buildType for project1 by user2");
-        step("Check buildType was not created with forbidden code");
+        // (Test data) Prepare a new project
+        Project project = generate(Project.class);
+        // (API) SuperUser creates a new project
+        superUserCheckedRequests.getRequest(PROJECTS).create(project);
+
+        // (Test data) Set project1 as a project for which a build type will be created
+        testData.getBuildType().setProject(project);
+
+        // (Test data) Prepare a build type for project1
+        var buildTypeForProject = generate(Collections.singletonList(project), BuildType.class);
+
+        // Check buildTypeForProject1 was not created due to insufficient permissions
+        new UncheckedRequest(Specifications.authSpec(userWithProjectAdminRole), BUILD_TYPES)
+                .create(buildTypeForProject)
+                .then().spec(ValidationResponseSpecifications.checkUserNotHavePermissionsToEditProject(project));
     }
 }

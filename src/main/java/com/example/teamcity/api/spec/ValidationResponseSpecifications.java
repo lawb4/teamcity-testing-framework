@@ -77,4 +77,11 @@ public class ValidationResponseSpecifications {
                 .expectBody(Matchers.containsString("You do not have \"Create subproject\" permission in project with internal id: %s".formatted(project.getParentProject().getId())))
                 .build();
     }
+  
+    public static ResponseSpecification checkUserNotHavePermissionsToEditProject(Project project) {
+        return new ResponseSpecBuilder()
+                .expectStatusCode(HttpStatus.SC_FORBIDDEN)
+                .expectBody(Matchers.containsString("You do not have enough permissions to edit project with id: %s".formatted(project.getId())))
+                .build();
+    }
 }
