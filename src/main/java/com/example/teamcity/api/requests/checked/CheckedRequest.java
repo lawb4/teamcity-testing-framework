@@ -5,13 +5,12 @@ import com.example.teamcity.api.generators.TestDataStorage;
 import com.example.teamcity.api.models.BaseModel;
 import com.example.teamcity.api.requests.CrudInterface;
 import com.example.teamcity.api.requests.Request;
-import com.example.teamcity.api.requests.SearchInterface;
 import com.example.teamcity.api.requests.unchecked.UncheckedRequest;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
 
 @SuppressWarnings("unchecked")
-public class CheckedRequest<T extends BaseModel> extends Request implements CrudInterface, SearchInterface {
+public class CheckedRequest<T extends BaseModel> extends Request implements CrudInterface {
     private UncheckedRequest uncheckedRequest;
 
     public CheckedRequest(RequestSpecification spec, Endpoint endpoint) {
@@ -31,35 +30,26 @@ public class CheckedRequest<T extends BaseModel> extends Request implements Crud
     }
 
     @Override
-    public T read(String id) {
+    public T read(String locator) {
         return (T) uncheckedRequest
-                .read(id)
+                .read(locator)
                 .then().assertThat().statusCode(HttpStatus.SC_OK)
                 .extract().as(endpoint.getModelClass());
     }
 
     @Override
-    public T update(String id, BaseModel model) {
+    public T update(String locator, BaseModel model) {
         return (T) uncheckedRequest
-                .update(id, model)
+                .update(locator, model)
                 .then().assertThat().statusCode(HttpStatus.SC_OK)
                 .extract().as(endpoint.getModelClass());
     }
 
     @Override
-    public Object delete(String id) {
+    public Object delete(String locator) {
         return uncheckedRequest
-                .delete(id)
+                .delete(locator)
                 .then().assertThat().statusCode(HttpStatus.SC_NO_CONTENT)
                 .extract().asString();
-    }
-
-    @Override
-    public T search(String locatorValue) {
-        return (T) uncheckedRequest
-                .search(locatorValue)
-                .then()
-                .statusCode(HttpStatus.SC_OK)
-                .extract().as(endpoint.getModelClass());
     }
 }
