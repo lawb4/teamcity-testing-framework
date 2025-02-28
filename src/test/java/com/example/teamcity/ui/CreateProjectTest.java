@@ -1,5 +1,9 @@
 package com.example.teamcity.ui;
 
+import com.codeborne.selenide.Condition;
+import com.example.teamcity.api.enums.Endpoint;
+import com.example.teamcity.api.models.Project;
+import com.example.teamcity.ui.pages.ProjectPage;
 import com.example.teamcity.ui.pages.admin.CreateProjectPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
@@ -24,10 +28,12 @@ public class CreateProjectTest extends BaseUiTest {
                 .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
 
         // Check API state (correct state of sent data from UI to API level)
-        step("Check that all entities (project, build type) were successfully created with correct data on API level");
+        var createdProject = superUserCheckedRequests.<Project>getRequest(Endpoint.PROJECTS).read("name:" + testData.getProject().getName());
+        softly.assertThat(createdProject).isNotNull();
 
         // Check UI state (correct data processing and display on UI level)
-        step("Check that project is visible on Projects Page (http://localhost:8111/favorite/projects)");
+        ProjectPage.open(createdProject.getId())
+                .title.shouldHave(Condition.exactText(testData.getProject().getName()));
     }
 
     @Test
