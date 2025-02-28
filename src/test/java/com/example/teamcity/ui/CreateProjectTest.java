@@ -1,7 +1,6 @@
 package com.example.teamcity.ui;
 
-import com.example.teamcity.api.enums.Endpoint;
-import com.example.teamcity.ui.pages.LoginPage;
+import com.example.teamcity.ui.pages.admin.CreateProjectPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -10,21 +9,19 @@ import static io.qameta.allure.Allure.step;
 
 @Tag("Regression")
 public class CreateProjectTest extends BaseUiTest {
+    private static final String REPO_URL = "https://github.com/lawb4/teamcity-testing-framework";
+
     @Test
     @DisplayName("User should be able to create a project")
     @Tag("Positive")
     public void userCreatesProject() {
         // Prepare test environment and data
-        step("Login as user");
-        superUserCheckedRequests.getRequest(Endpoint.USERS).create(testData.getUser());
-        LoginPage.open().login(testData.getUser());
+        loginAs(testData.getUser());
 
         // Interaction with UI
-        step("Open `Create Project Page` (http://localhost:8111/admin/createObjectMenu.html)");
-        step("Send all project parameters (repository URL)");
-        step("Click Proceed");
-        step("Fix Project Name and Build Type name values");
-        step("Click Proceed");
+        CreateProjectPage.open("_Root")
+                .createForm(REPO_URL)
+                .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
 
         // Check API state (correct state of sent data from UI to API level)
         step("Check that all entities (project, build type) were successfully created with correct data on API level");
