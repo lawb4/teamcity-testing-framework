@@ -1,5 +1,7 @@
 package com.example.teamcity.ui;
 
+import com.example.teamcity.api.enums.Endpoint;
+import com.example.teamcity.ui.pages.LoginPage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,8 @@ public class CreateProjectTest extends BaseUiTest {
     public void userCreatesProject() {
         // Prepare test environment and data
         step("Login as user");
+        superUserCheckedRequests.getRequest(Endpoint.USERS).create(testData.getUser());
+        LoginPage.open().login(testData.getUser());
 
         // Interaction with UI
         step("Open `Create Project Page` (http://localhost:8111/admin/createObjectMenu.html)");
