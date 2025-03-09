@@ -4,12 +4,11 @@ import com.example.teamcity.api.enums.Endpoint;
 import com.example.teamcity.api.models.BaseModel;
 import com.example.teamcity.api.requests.CrudInterface;
 import com.example.teamcity.api.requests.Request;
-import com.example.teamcity.api.requests.SearchInterface;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-public class UncheckedRequest<T extends BaseModel> extends Request implements CrudInterface, SearchInterface<T> {
+public class UncheckedRequest<T extends BaseModel> extends Request implements CrudInterface {
     public UncheckedRequest(RequestSpecification spec, Endpoint endpoint) {
         super(spec, endpoint);
     }
@@ -24,37 +23,27 @@ public class UncheckedRequest<T extends BaseModel> extends Request implements Cr
     }
 
     @Override
-    public Response read(String id) {
+    public Response read(String locator) {
         return RestAssured
                 .given()
                 .spec(spec)
-                .get(endpoint.getUrl() + "/id:" + id);
+                .get(endpoint.getUrl() + "/" + locator);
     }
 
     @Override
-    public Response update(String id, BaseModel model) {
+    public Response update(String locator, BaseModel model) {
         return RestAssured
                 .given()
                 .spec(spec)
                 .body(model)
-                .put(endpoint.getUrl() + "/id:" + id);
+                .put(endpoint.getUrl() + "/" + locator);
     }
 
     @Override
-    public Response delete(String id) {
+    public Response delete(String locator) {
         return RestAssured
                 .given()
                 .spec(spec)
-                .delete(endpoint.getUrl() + "/id:" + id);
-    }
-
-    @Override
-    public Response search(String locatorValue) {
-        return RestAssured
-                .given()
-                .spec(spec)
-                .pathParams(endpoint.getLocatorParam(), locatorValue)
-                .when()
-                .get(endpoint.getUrl() + "/{" + endpoint.getLocatorParam() + "}");
+                .delete(endpoint.getUrl() + "/" + locator);
     }
 }

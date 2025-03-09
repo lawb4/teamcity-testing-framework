@@ -35,7 +35,7 @@ public class ProjectTest extends BaseApiTest {
         userCheckedRequests.<Project>getRequest(PROJECTS).create(testData.getProject());
         var createdProject = userCheckedRequests.<Project>getRequest(PROJECTS).read(testData.getProject().getId());
 
-        userCheckedRequests.getRequest(PROJECTS).search("name:" + testData.getProject().getName());
+        userCheckedRequests.getRequest(PROJECTS).read("name:" + testData.getProject().getName());
 
         softly.assertThat(testData.getProject().getName())
                 .as("Project was not found")
