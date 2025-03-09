@@ -46,4 +46,40 @@ public class CreateBuildTypeTest extends BaseUiTest {
                         -> buildType.getName().text().equals(newBuildTypeTestData.getName()));
         softly.assertThat(foundBuildTypes).isTrue();
     }
+
+    @Test
+    @DisplayName("User should not be able to create a build configuration with empty name")
+    @Tag("Negative")
+    public void userCreatesBuildConfigurationWithEmptyName() {
+        loginAs(testData.getUser());
+
+        CreateProjectPage.open()
+                .createForm(REPO_URL_FOR_PROJECT)
+                .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
+
+        var createdProject = superUserCheckedRequests.<Project>getRequest(Endpoint.PROJECTS).read("name:" + testData.getProject().getName());
+
+        CreateBuildTypePage.open(createdProject.getId())
+                .createForm(REPO_URL_FOR_BUILD_TYPE)
+                .setupBuildType("")
+                .shouldShowEmptyBuildTypeNameError();
+    }
+
+    @Test
+    @DisplayName("User should not be able to create a build configuration with name that already exists for another build configuration")
+    @Tag("Negative")
+    public void userCreatesBuildTypeWithAlreadyExistingBuildTypeName() {
+        loginAs(testData.getUser());
+
+        CreateProjectPage.open()
+                .createForm(REPO_URL_FOR_PROJECT)
+                .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
+
+        var createdProject = superUserCheckedRequests.<Project>getRequest(Endpoint.PROJECTS).read("name:" + testData.getProject().getName());
+
+        CreateBuildTypePage.open(createdProject.getId())
+                .createForm(REPO_URL_FOR_BUILD_TYPE)
+                .setupBuildType(testData.getBuildType().getName())
+                .shouldShowDuplicateNameError(testData.getBuildType().getName(), createdProject.getName());
+    }
 }
