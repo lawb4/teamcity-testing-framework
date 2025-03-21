@@ -9,7 +9,6 @@ import static com.codeborne.selenide.Selenide.$;
 public class CreateBuildTypePage extends CreateBasePage {
     private static final String BUILD_TYPE_SHOW_MODE = "createBuildTypeMenu";
 
-    public SelenideElement inputBuildTypeName = $("#buildTypeName");
     private final SelenideElement inputBuildTypeName = $("#buildTypeName");
     private final SelenideElement errorBuildTypeName = $("#error_buildTypeName");
 
