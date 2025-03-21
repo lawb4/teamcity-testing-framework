@@ -10,6 +10,10 @@ public class CreateProjectPage extends CreateBasePage {
 
     private SelenideElement projectInputName = $("#projectName");
 
+    public static CreateProjectPage open() {
+        return Selenide.open(CREATE_URL.formatted("_Root", PROJECT_SHOW_MODE), CreateProjectPage.class);
+    }
+
     public static CreateProjectPage open(String projectId) {
         return Selenide.open(CREATE_URL.formatted(projectId, PROJECT_SHOW_MODE), CreateProjectPage.class);
     }

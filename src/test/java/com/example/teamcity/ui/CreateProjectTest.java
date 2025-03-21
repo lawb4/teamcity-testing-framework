@@ -24,7 +24,7 @@ public class CreateProjectTest extends BaseUiTest {
         loginAs(testData.getUser());
 
         // Interaction with UI
-        CreateProjectPage.open("_Root")
+        CreateProjectPage.open()
                 .createForm(REPO_URL)
                 .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
 
