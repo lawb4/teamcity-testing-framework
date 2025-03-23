@@ -1,0 +1,75 @@
+name: Teamcity Setup
+
+runs:
+  using: composite
+  steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'zulu'
+
+    # By default, the command 'ifconfig' is missing in Ubuntu
+    - name: Install ifconfig
+      shell: bash
+      run: sudo apt-get update && sudo apt-get install -y net-tools
+
+    - name: Set up host environment variable
+      shell: bash
+      # Script to determine ip address from another container in Selenoid UI documentation — https://aerokube.com/selenoid-ui/latest/
+      run: |
+        echo "HOST=$(ifconfig | grep -E "([0-9]{1,3}\.){3}[0-9]{1,3}" | grep -v 127.0.0.1 | awk '{ print $2 }' | cut -f2 -d: | head -n1)" >> $GITHUB_ENV
+
+    - name: Set up host config property
+      shell: bash
+      run: echo "host=$HOST:8111" >> src/main/resources/config.properties
+
+    - name: Pull Selenoid browsers
+      shell: bash
+      # Parse browsers.json and "docker pull" all browsers
+      run: |
+        for browser in $(awk -F'"' '/"image": "/{print $4}' "config/browsers.json"); do 
+          docker pull $browser
+        done
+
+    - name: Run Selenoid
+      shell: bash
+      # The "-d" flag runs a container in background mode. Without this flag we cannot move to the next step
+      run: |
+        docker run -d --name selenoid \
+        -v /var/run/docker.sock:/var/run/docker.sock \
+        -v $(pwd)/config/:/etc/selenoid/:ro \
+        -p 4444:4444 \
+        aerokube/selenoid:latest-release
+
+      # There is no sense in running this step on GitHub Actions, but it is useful for local debugging with 'act' tool
+    - name: Run Selenoid UI
+      shell: bash
+      run: |
+        docker run -d --name selenoid-ui \
+        -p 8080:8080 \
+        aerokube/selenoid-ui:latest-release \
+        --selenoid-uri http://$HOST:4444
+
+    - name: Run TeamCity Server
+      shell: bash
+      # The "-u 0" flag runs the container with root permissions (so that there is a "write" access to the directories indicated in volume)
+      run: |
+        docker run -u 0 -d --name teamcity-server  \
+        -v $(pwd)/tmp/teamcity_server/datadir:/data/teamcity_server/datadir \
+        -v $(pwd)/tmp/teamcity_server/logs:/opt/teamcity/logs  \
+        -p 8111:8111 \
+        jetbrains/teamcity-server:2023.11.1
+
+    - name: Setup Teamcity Server
+      shell: bash
+      # Server configuration during first start (accept agreement, choose a database, etc.) is implemented in autotest
+      run: ./mvnw clean test -Dtest=SetupServerTest#setupTeamCityServerTest
+
+    - name: Setup superUserToken environment variable
+      shell: bash
+      run: echo "SUPER_USER_TOKEN=$(docker logs teamcity-server | grep 'Super user authentication token' | tail -n 1 | awk '{print $6}')" >> $GITHUB_ENV
+
+    - name: Set up superUserToken config property
+      shell: bash
+      run: echo "superUserToken=$SUPER_USER_TOKEN" >> src/main/resources/config.properties
