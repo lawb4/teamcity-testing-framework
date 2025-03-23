@@ -1,0 +1,18 @@
+name: Deploy frontend
+
+on: workflow_call
+
+# These are just example steps of how frontend pipeline may look like (because I don't have access to source code of the app)
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build frontend
+        run: echo Frontend is building, unit tests and linters are running, docker image is being built and published
+
+  deploy-stage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy frontend to stage/review app
+        run: echo Frontend is being deployed

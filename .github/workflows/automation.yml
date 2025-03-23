@@ -1,0 +1,38 @@
+name: Run tests
+
+on:
+  workflow_call:
+    inputs:
+      package:
+        description: api | ui
+        required: true
+        type: string
+
+jobs:
+  validate-checkstyle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Validate Checkstyle
+        run: ./mvnw validate
+
+  run-tests:
+    needs: validate-checkstyle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: TeamCity setup
+        uses: ./.github/actions/teamcity-setup
+
+      - name: Run tests
+        continue-on-error: true
+        # Indicate group (tag) so that tests related to teamcity setup will not be run
+        run: ./mvnw test -Dtest='com.example.teamcity.${{ inputs.package }}.**' -Dtag=Regression
