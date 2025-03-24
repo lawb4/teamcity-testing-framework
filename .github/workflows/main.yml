@@ -36,7 +36,7 @@ jobs:
     runs-on: ubuntu-latest
     environment: 'prod'
     steps:
-      - name: 'Approve application to production'
+      - name: Approve application to production
         run: echo Approved to production
 
   # Deploy backend and frontend to prod
