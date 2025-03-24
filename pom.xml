@@ -15,11 +15,11 @@
         <rest-assured.version>5.5.0</rest-assured.version>
         <lombok.version>1.18.36</lombok.version>
         <junit-jupiter.version>5.11.4</junit-jupiter.version>
-        <allure-junit5.version>2.29.1</allure-junit5.version>
         <jackson.version>2.18.2</jackson.version>
         <assertj.version>3.27.3</assertj.version>
         <selenide.version>7.7.3</selenide.version>
         <swagger-coverage-version>1.5.0</swagger-coverage-version>
+        <allure.version>2.29.1</allure.version>
     </properties>
 
     <dependencies>
@@ -42,7 +42,7 @@
         <dependency>
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-junit5</artifactId>
-            <version>${allure-junit5.version}</version>
+            <version>${allure.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -75,6 +75,17 @@
             <groupId>com.github.viclovsky</groupId>
             <artifactId>swagger-coverage-rest-assured</artifactId>
             <version>${swagger-coverage-version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-rest-assured</artifactId>
+            <version>${allure.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-selenide</artifactId>
+            <version>${allure.version}</version>
         </dependency>
     </dependencies>
 </project>

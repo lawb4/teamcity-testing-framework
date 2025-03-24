@@ -53,3 +53,30 @@ jobs:
           path: |
             swagger-coverage-report.html
             swagger-coverage-results.json
+
+      # Load Allure Report history from branch called 'gh-pages' (https://allurereport.org/docs/integrations-github/)
+      - name: Load test report history
+        uses: actions/checkout@v2
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Build test report
+        uses: simple-elf/allure-report-action@v1.7
+        if: always()
+        with:
+          gh_pages: 'gh-pages'
+          allure_results: 'target/allure-results'
+          allure_history: 'allure-history'
+          subfolder: ${{ inputs.package }}
+
+      # Create an empty 'gh-pages' branch according to the guide https://gist.github.com/ramnathv/2227408
+      - name: Publish test report
+        uses: peaceiris/actions-gh-pages@v3
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: 'gh-pages'
+          publish_dir: 'allure-history'
