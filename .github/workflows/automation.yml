@@ -35,7 +35,7 @@ jobs:
       - name: Run tests
         continue-on-error: true
         # Indicate group (tag) so that tests related to teamcity setup will not be run
-        run: ./mvnw test -Dtest='com.example.teamcity.${{ inputs.package }}.**' -Dtag=Regression
+        run: ./mvnw test -Dtest='com.example.teamcity.${{ inputs.package }}.**' -Dgroups=Regression
 
       # Create a report with api tests coverage based on Swagger — https://github.com/viclovsky/swagger-coverage
       # A 'SwaggerCoverageRestAssured' filter must be added to RestAssured
