@@ -5,18 +5,18 @@ import com.example.teamcity.api.models.AuthModules;
 import com.example.teamcity.api.models.ServerAuthSettings;
 import com.example.teamcity.api.requests.ServerAuthRequest;
 import com.example.teamcity.api.spec.Specifications;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 
 public class BaseApiTest extends BaseTest {
-    private final ServerAuthRequest serverAuthRequest = new ServerAuthRequest(Specifications.superUserAuthSpec());
-    private AuthModules authModules;
-    private boolean perProjectPermissions;
+    private static final ServerAuthRequest serverAuthRequest = new ServerAuthRequest(Specifications.superUserAuthSpec());
+    private static AuthModules authModules;
+    private static boolean perProjectPermissions;
 
-    @BeforeEach
-    public void setUpServerAuthSettings() {
+    @BeforeAll
+    public static void setUpServerAuthSettings() {
         // Get current settings perProjectPermissions
         perProjectPermissions = serverAuthRequest.read().getPerProjectPermissions();
 
@@ -28,8 +28,8 @@ public class BaseApiTest extends BaseTest {
                 .build());
     }
 
-    @AfterEach
-    public void cleanUpServerAuthSettings() {
+    @AfterAll
+    public static void cleanUpServerAuthSettings() {
         // Set the default value for perProjectPermissions setting
         serverAuthRequest.update(ServerAuthSettings.builder()
                 .perProjectPermissions(perProjectPermissions)
