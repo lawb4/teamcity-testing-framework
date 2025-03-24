@@ -1,0 +1,18 @@
+name: Deploy to prod
+
+on: workflow_call
+
+# These are just example steps of how deploy-to-prod pipeline may look like (because I don't have access to source code of the app)
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy backend to prod
+        run: echo Deploy backend to production
+
+  deploy-stage:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy frontend to prod
+        run: echo Deploy frontend to production
