@@ -12,7 +12,7 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
 public class ProjectsPage extends BasePage {
-    private static final String PROJECTS_URL = "/favorite/projects";
+    private static final String PROJECTS_URL = "/favorite/projects?mode=builds";
 
     private ElementsCollection projectElements = $$("div[class*='Subproject__container']");
 
@@ -23,7 +23,8 @@ public class ProjectsPage extends BasePage {
     }
 
     public static ProjectsPage open() {
-        return Selenide.open(PROJECTS_URL, ProjectsPage.class);
+        Selenide.open(PROJECTS_URL, ProjectsPage.class);
+        return Selenide.page(ProjectsPage.class);
     }
 
     public List<ProjectElement> getProjects() {
