@@ -1,5 +1,6 @@
 package com.example.teamcity.ui.pages.admin;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 
@@ -27,5 +28,6 @@ public class CreateProjectPage extends CreateBasePage {
         projectInputName.val(projectName);
         inputBuildTypeName.val(buildTypeName);
         submitButton.click();
+        connectionSuccessfulMessage.should(Condition.appear, BASE_WAITING);
     }
 }
