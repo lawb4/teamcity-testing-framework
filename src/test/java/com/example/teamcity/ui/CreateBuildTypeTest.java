@@ -14,8 +14,8 @@ import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 
 @Tag("Regression")
 public class CreateBuildTypeTest extends BaseUiTest {
-    private static final String REPO_URL_FOR_PROJECT = "https://github.com/lawb4/teamcity-testing-framework";
-    private static final String REPO_URL_FOR_BUILD_TYPE = "https://github.com/lawb4/qa-portfolio";
+    private static final String REPO_URL_FOR_PROJECT = "https://github.com/lawb4/qa-portfolio";
+    private static final String REPO_URL_FOR_BUILD_TYPE = "https://github.com/lawb4/teamcity-testing-framework";
 
     @Test
     @DisplayName("User should be able to create a build configuration")
