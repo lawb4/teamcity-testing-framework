@@ -1,6 +1,6 @@
 package com.example.teamcity.ui;
 
-import com.example.teamcity.api.enums.Endpoint;
+import com.example.teamcity.api.generators.TestDataStorage;
 import com.example.teamcity.api.models.BuildType;
 import com.example.teamcity.api.models.Project;
 import com.example.teamcity.ui.pages.ProjectPage;
@@ -10,6 +10,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
+import static com.example.teamcity.api.enums.Endpoint.BUILD_TYPES;
+import static com.example.teamcity.api.enums.Endpoint.PROJECTS;
 import static com.example.teamcity.api.generators.TestDataGenerator.generate;
 
 @Tag("Regression")
@@ -27,7 +29,7 @@ public class CreateBuildTypeTest extends BaseUiTest {
                 .createForm(REPO_URL_FOR_PROJECT)
                 .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
 
-        var createdProject = superUserCheckedRequests.<Project>getRequest(Endpoint.PROJECTS)
+        var createdProject = superUserCheckedRequests.<Project>getRequest(PROJECTS)
                 .read("name:" + testData.getProject().getName());
 
         var newBuildTypeTestData = generate().getBuildType();
@@ -36,9 +38,11 @@ public class CreateBuildTypeTest extends BaseUiTest {
                 .createForm(REPO_URL_FOR_BUILD_TYPE)
                 .setupBuildType(newBuildTypeTestData.getName());
 
-        var createdBuildType = superUserCheckedRequests.<BuildType>getRequest(Endpoint.BUILD_TYPES)
+        var createdBuildType = superUserCheckedRequests.<BuildType>getRequest(BUILD_TYPES)
                 .read("name:" + newBuildTypeTestData.getName());
         softly.assertThat(createdBuildType).isNotNull();
+
+        TestDataStorage.getStorage().addCreatedEntity(BUILD_TYPES, createdBuildType);
 
         var foundBuildTypes = ProjectPage.open(createdProject.getId())
                 .getBuildTypes().stream()
@@ -57,7 +61,9 @@ public class CreateBuildTypeTest extends BaseUiTest {
                 .createForm(REPO_URL_FOR_PROJECT)
                 .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
 
-        var createdProject = superUserCheckedRequests.<Project>getRequest(Endpoint.PROJECTS).read("name:" + testData.getProject().getName());
+        var createdProject = superUserCheckedRequests.<Project>getRequest(PROJECTS).read("name:" + testData.getProject().getName());
+
+        TestDataStorage.getStorage().addCreatedEntity(PROJECTS, createdProject);
 
         CreateBuildTypePage.open(createdProject.getId())
                 .createForm(REPO_URL_FOR_BUILD_TYPE)
@@ -75,7 +81,9 @@ public class CreateBuildTypeTest extends BaseUiTest {
                 .createForm(REPO_URL_FOR_PROJECT)
                 .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
 
-        var createdProject = superUserCheckedRequests.<Project>getRequest(Endpoint.PROJECTS).read("name:" + testData.getProject().getName());
+        var createdProject = superUserCheckedRequests.<Project>getRequest(PROJECTS).read("name:" + testData.getProject().getName());
+
+        TestDataStorage.getStorage().addCreatedEntity(PROJECTS, createdProject);
 
         CreateBuildTypePage.open(createdProject.getId())
                 .createForm(REPO_URL_FOR_BUILD_TYPE)
