@@ -1,6 +1,7 @@
 package com.example.teamcity.ui.pages.admin;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selectors;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 
@@ -15,7 +16,7 @@ public class CreateBuildTypePage extends CreateBasePage {
     public static CreateBuildTypePage open(String projectId) {
         //return Selenide.open(CREATE_URL.formatted(projectId, BUILD_TYPE_SHOW_MODE), CreateBuildTypePage.class);
         Selenide.open(CREATE_URL.formatted(projectId, BUILD_TYPE_SHOW_MODE), CreateBuildTypePage.class);
-        //Selenide.$(Selectors.byText("Create Build Configuration")).shouldBe(Condition.visible, BASE_WAITING);
+        Selenide.$(Selectors.byText("Create Build Configuration")).shouldBe(Condition.appear, BASE_WAITING);
         return Selenide.page(CreateBuildTypePage.class);
     }
 
