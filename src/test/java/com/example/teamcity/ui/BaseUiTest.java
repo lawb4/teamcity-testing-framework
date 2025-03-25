@@ -20,7 +20,6 @@ public class BaseUiTest extends BaseTest {
     public void setupUiTest() {
         Configuration.browser = Config.getProperty("browser");
         Configuration.baseUrl = "http://" + Config.getProperty("host");
-        Configuration.timeout = 8000;
         Configuration.remote = Config.getProperty("remote");
         Configuration.browserSize = Config.getProperty("browserSize");
 
