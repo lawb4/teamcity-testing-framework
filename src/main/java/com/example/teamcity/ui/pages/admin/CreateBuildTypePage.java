@@ -13,7 +13,10 @@ public class CreateBuildTypePage extends CreateBasePage {
     private final SelenideElement errorBuildTypeName = $("#error_buildTypeName");
 
     public static CreateBuildTypePage open(String projectId) {
-        return Selenide.open(CREATE_URL.formatted(projectId, BUILD_TYPE_SHOW_MODE), CreateBuildTypePage.class);
+        //return Selenide.open(CREATE_URL.formatted(projectId, BUILD_TYPE_SHOW_MODE), CreateBuildTypePage.class);
+        Selenide.open(CREATE_URL.formatted(projectId, BUILD_TYPE_SHOW_MODE + "#createFromUrl"), CreateBuildTypePage.class);
+        //Selenide.$(Selectors.byText("Create Build Configuration")).shouldBe(Condition.visible, BASE_WAITING);
+        return Selenide.page(CreateBuildTypePage.class);
     }
 
     public CreateBuildTypePage createForm(String url) {
