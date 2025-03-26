@@ -6,6 +6,7 @@ import com.codeborne.selenide.logevents.SelenideLogger;
 import com.example.teamcity.BaseTest;
 import com.example.teamcity.api.config.Config;
 import com.example.teamcity.api.enums.Endpoint;
+import com.example.teamcity.api.models.Project;
 import com.example.teamcity.api.models.User;
 import com.example.teamcity.ui.pages.LoginPage;
 import io.qameta.allure.selenide.AllureSelenide;
@@ -13,6 +14,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.Map;
+
+import static com.example.teamcity.api.enums.Endpoint.PROJECTS;
 
 public class BaseUiTest extends BaseTest {
 
@@ -43,5 +46,9 @@ public class BaseUiTest extends BaseTest {
     protected void loginAs(User user) {
         superUserCheckedRequests.getRequest(Endpoint.USERS).create(testData.getUser());
         LoginPage.open().login(testData.getUser());
+    }
+
+    protected Project createProject(Project project) {
+        return superUserCheckedRequests.<Project>getRequest(PROJECTS).create(project);
     }
 }
