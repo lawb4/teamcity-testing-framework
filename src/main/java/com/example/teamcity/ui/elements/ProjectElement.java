@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 public class ProjectElement extends BasePageElement {
-    private SelenideElement name;
-    private SelenideElement link;
-    private SelenideElement button;
+    private final SelenideElement name;
+    private final SelenideElement link;
+    private final SelenideElement button;
 
     public ProjectElement(SelenideElement element) {
         super(element);

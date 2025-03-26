@@ -6,6 +6,7 @@ import com.codeborne.selenide.logevents.SelenideLogger;
 import com.example.teamcity.BaseTest;
 import com.example.teamcity.api.config.Config;
 import com.example.teamcity.api.enums.Endpoint;
+import com.example.teamcity.api.generators.TestDataStorage;
 import com.example.teamcity.api.models.Project;
 import com.example.teamcity.api.models.User;
 import com.example.teamcity.ui.pages.LoginPage;
@@ -25,7 +26,6 @@ public class BaseUiTest extends BaseTest {
         Configuration.baseUrl = "http://" + Config.getProperty("host");
         Configuration.remote = Config.getProperty("remote");
         Configuration.browserSize = Config.getProperty("browserSize");
-        //Configuration.timeout = 8000;
 
         Configuration.browserCapabilities.setCapability("selenoid:options",
                 Map.of("enableVNC", true,
@@ -45,11 +45,12 @@ public class BaseUiTest extends BaseTest {
     }
 
     protected void loginAs(User user) {
-        superUserCheckedRequests.getRequest(Endpoint.USERS).create(testData.getUser());
-        LoginPage.open().login(testData.getUser());
+        superUserCheckedRequests.getRequest(Endpoint.USERS).create(user);
+        LoginPage.open().login(user);
     }
 
-    protected Project createProject(Project project) {
-        return superUserCheckedRequests.<Project>getRequest(PROJECTS).create(project);
+    protected void createProject(Project project) {
+        var createdProject = superUserCheckedRequests.<Project>getRequest(PROJECTS).create(project);
+        TestDataStorage.getStorage().addCreatedEntity(PROJECTS, createdProject);
     }
 }

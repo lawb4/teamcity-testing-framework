@@ -20,7 +20,6 @@ public class CreateProjectTest extends BaseUiTest {
 
     @BeforeEach
     public void setup() {
-        //super.beforeTest();
         loginAs(testData.getUser());
     }
 
@@ -28,26 +27,12 @@ public class CreateProjectTest extends BaseUiTest {
     @DisplayName("User should be able to create a project")
     @Tag("Positive")
     public void userCreatesProject() {
-        // Prepare test environment and data
-        //loginAs(testData.getUser());
 
-        // Interaction with UI
-//        CreateProjectPage.open()
-//                .createForm(REPO_URL)
-//                .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
-
-        step("Create a project", () -> {
+        step("Create a project via UI", () -> {
             CreateProjectPage.open()
                     .createForm(REPO_URL)
                     .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
         });
-
-        // Check API state (correct state of sent data from UI to API level)
-//        var createdProject = superUserCheckedRequests.<Project>getRequest(PROJECTS)
-//                .read("name:" + testData.getProject().getName());
-//        softly.assertThat(createdProject).isNotNull();
-//
-//        TestDataStorage.getStorage().addCreatedEntity(PROJECTS, createdProject);
 
         step("API check that project was successfully created", () -> {
             var createdProject = superUserCheckedRequests.<Project>getRequest(PROJECTS)
@@ -57,10 +42,6 @@ public class CreateProjectTest extends BaseUiTest {
             TestDataStorage.getStorage().addCreatedEntity(PROJECTS, createdProject);
         });
 
-        // Check UI state (correct data processing and display on UI level)
-//        ProjectPage.open(createdProject.getId())
-//                .title.shouldHave(Condition.exactText(testData.getProject().getName()));
-
         step("Check that created project is displayed on UI", () -> {
             var createdProject = superUserCheckedRequests.<Project>getRequest(PROJECTS)
                     .read("name:" + testData.getProject().getName());
@@ -68,10 +49,6 @@ public class CreateProjectTest extends BaseUiTest {
             ProjectPage.open(createdProject.getId())
                     .title.shouldHave(Condition.exactText(testData.getProject().getName()));
         });
-
-//        var foundProjects = ProjectsPage.open().getProjects().stream()
-//                .anyMatch(project -> project.getName().text().equals(testData.getProject().getName()));
-//        softly.assertThat(foundProjects).isTrue();
 
         step("Check that project is displayed on Projects page", () -> {
             var foundProjects = ProjectsPage.open()
@@ -81,25 +58,25 @@ public class CreateProjectTest extends BaseUiTest {
         });
     }
 
-//    @Test
-//    @DisplayName("User should not be able to create a project without name")
-//    @Tag("Negative")
-//    public void userCreatesProjectWithoutName() {
-//        // Prepare test environment and data
-//        step("Login as user");
-//        step("Check number of projects");
-//
-//        // Interaction with UI
-//        step("Open `Create Project Page` (http://localhost:8111/admin/createObjectMenu.html)");
-//        step("Send all project parameters (repository URL)");
-//        step("Click Proceed");
-//        step("Set Project Name");
-//        step("Click Proceed");
-//
-//        // Check API state (correct state of sent data from UI to API level)
-//        step("Check that number of projects did not change");
-//
-//        // Check UI state (correct data processing and display on UI level)
-//        step("Check that following error appears: 'Project name must not be empty'");
-//    }
+    //@Test
+    @DisplayName("User should not be able to create a project without name")
+    @Tag("Negative")
+    public void userCreatesProjectWithoutName() {
+        // Prepare test environment and data
+        step("Login as user");
+        step("Check number of projects");
+
+        // Interaction with UI
+        step("Open `Create Project Page` (http://localhost:8111/admin/createObjectMenu.html)");
+        step("Send all project parameters (repository URL)");
+        step("Click Proceed");
+        step("Set Project Name");
+        step("Click Proceed");
+
+        // Check API state (correct state of sent data from UI to API level)
+        step("Check that number of projects did not change");
+
+        // Check UI state (correct data processing and display on UI level)
+        step("Check that following error appears: 'Project name must not be empty'");
+    }
 }
