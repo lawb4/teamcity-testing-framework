@@ -25,7 +25,7 @@ public class BaseUiTest extends BaseTest {
         Configuration.baseUrl = "http://" + Config.getProperty("host");
         Configuration.remote = Config.getProperty("remote");
         Configuration.browserSize = Config.getProperty("browserSize");
-        Configuration.timeout = 8000;
+        //Configuration.timeout = 8000;
 
         Configuration.browserCapabilities.setCapability("selenoid:options",
                 Map.of("enableVNC", true,
