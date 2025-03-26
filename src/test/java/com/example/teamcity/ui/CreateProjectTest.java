@@ -29,7 +29,7 @@ public class CreateProjectTest extends BaseUiTest {
                 .setupProject(testData.getProject().getName(), testData.getBuildType().getName());
 
         // Check API state (correct state of sent data from UI to API level)
-        var createdProject = superUserCheckedRequests.<Project>getRequest(PROJECTS).read("name:" + testData.getProject().getName());
+        var createdProject = superUserCheckedRequests.<Project>getRequest(PROJECTS).read(testData.getProject().getName());
         softly.assertThat(createdProject).isNotNull();
 
         TestDataStorage.getStorage().addCreatedEntity(PROJECTS, createdProject);
