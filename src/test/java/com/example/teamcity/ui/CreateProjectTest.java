@@ -4,6 +4,7 @@ import com.codeborne.selenide.Condition;
 import com.example.teamcity.api.generators.TestDataStorage;
 import com.example.teamcity.api.models.Project;
 import com.example.teamcity.ui.pages.ProjectPage;
+import com.example.teamcity.ui.pages.ProjectsPage;
 import com.example.teamcity.ui.pages.admin.CreateProjectPage;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -72,12 +73,12 @@ public class CreateProjectTest extends BaseUiTest {
 //                .anyMatch(project -> project.getName().text().equals(testData.getProject().getName()));
 //        softly.assertThat(foundProjects).isTrue();
 
-//        step("Check that project is displayed on Projects page", () -> {
-//            var foundProjects = ProjectsPage.open()
-//                    .getProjects().stream()
-//                    .anyMatch(project -> project.getName().text().equals(testData.getProject().getName()));
-//            softly.assertThat(foundProjects).isTrue();
-//        });
+        step("Check that project is displayed on Projects page", () -> {
+            var foundProjects = ProjectsPage.open()
+                    .getProjects().stream()
+                    .anyMatch(project -> project.getName().text().equals(testData.getProject().getName()));
+            softly.assertThat(foundProjects).isTrue();
+        });
     }
 
 //    @Test

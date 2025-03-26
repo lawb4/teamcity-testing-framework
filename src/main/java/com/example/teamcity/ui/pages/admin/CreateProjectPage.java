@@ -27,5 +27,6 @@ public class CreateProjectPage extends CreateBasePage {
         projectInputName.val(projectName);
         inputBuildTypeName.val(buildTypeName);
         submitButton.click();
+        Selenide.sleep(1000);
     }
 }
