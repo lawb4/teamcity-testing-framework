@@ -21,7 +21,7 @@ public class CreateBuildTypeTest extends BaseUiTest {
 
     @BeforeEach
     public void setup() {
-        super.beforeTest();
+        //super.beforeTest();
         loginAs(testData.getUser());
         var createdProject = createProject(testData.getProject());
         TestDataStorage.getStorage().addCreatedEntity(PROJECTS, createdProject);

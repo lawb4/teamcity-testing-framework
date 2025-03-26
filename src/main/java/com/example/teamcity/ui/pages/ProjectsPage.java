@@ -12,7 +12,7 @@ import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
 public class ProjectsPage extends BasePage {
-    private static final String PROJECTS_URL = "/favorite/projects?mode=builds";
+    private static final String PROJECTS_URL = "/favorite/projects";
 
     //private ElementsCollection projectElements = $$("div[class*='Subproject__container']");
     private ElementsCollection projectElements = $$("div[class*='Subproject__summaryWrapper']");
