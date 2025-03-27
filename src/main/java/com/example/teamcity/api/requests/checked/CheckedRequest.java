@@ -6,6 +6,7 @@ import com.example.teamcity.api.models.BaseModel;
 import com.example.teamcity.api.requests.CrudInterface;
 import com.example.teamcity.api.requests.Request;
 import com.example.teamcity.api.requests.unchecked.UncheckedRequest;
+import io.qameta.allure.Step;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
 
@@ -19,6 +20,7 @@ public class CheckedRequest<T extends BaseModel> extends Request implements Crud
     }
 
     @Override
+    @Step("Create {endpoint.modelClass.simpleName}")
     public T create(BaseModel model) {
         var createdModel = (T) uncheckedRequest
                 .create(model)
@@ -30,6 +32,7 @@ public class CheckedRequest<T extends BaseModel> extends Request implements Crud
     }
 
     @Override
+    @Step("Read {endpoint.modelClass.simpleName} with locator: {locator}")
     public T read(String locator) {
         return (T) uncheckedRequest
                 .read(locator)
@@ -38,6 +41,7 @@ public class CheckedRequest<T extends BaseModel> extends Request implements Crud
     }
 
     @Override
+    @Step("Update {endpoint.modelClass.simpleName} with locator: {locator} and data: {model}")
     public T update(String locator, BaseModel model) {
         return (T) uncheckedRequest
                 .update(locator, model)
@@ -46,6 +50,7 @@ public class CheckedRequest<T extends BaseModel> extends Request implements Crud
     }
 
     @Override
+    @Step("Delete {endpoint.modelClass.simpleName} with locator: {locator}")
     public Object delete(String locator) {
         return uncheckedRequest
                 .delete(locator)

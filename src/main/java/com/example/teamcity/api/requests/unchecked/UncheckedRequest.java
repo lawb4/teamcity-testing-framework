@@ -4,6 +4,7 @@ import com.example.teamcity.api.enums.Endpoint;
 import com.example.teamcity.api.models.BaseModel;
 import com.example.teamcity.api.requests.CrudInterface;
 import com.example.teamcity.api.requests.Request;
+import io.qameta.allure.Step;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -14,6 +15,7 @@ public class UncheckedRequest<T extends BaseModel> extends Request implements Cr
     }
 
     @Override
+    @Step("Create {endpoint.modelClass.simpleName} (Unchecked)")
     public Response create(BaseModel model) {
         return RestAssured
                 .given()
@@ -23,6 +25,7 @@ public class UncheckedRequest<T extends BaseModel> extends Request implements Cr
     }
 
     @Override
+    @Step("Read {endpoint.modelClass.simpleName} with locator: {locator} (Unchecked)")
     public Response read(String locator) {
         return RestAssured
                 .given()
@@ -31,6 +34,7 @@ public class UncheckedRequest<T extends BaseModel> extends Request implements Cr
     }
 
     @Override
+    @Step("Update {endpoint.modelClass.simpleName} with locator: {locator} and data: {model} (Unchecked)")
     public Response update(String locator, BaseModel model) {
         return RestAssured
                 .given()
@@ -40,6 +44,7 @@ public class UncheckedRequest<T extends BaseModel> extends Request implements Cr
     }
 
     @Override
+    @Step("Delete {endpoint.modelClass.simpleName} with locator: {locator} (Unchecked)")
     public Response delete(String locator) {
         return RestAssured
                 .given()
