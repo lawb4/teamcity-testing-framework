@@ -113,19 +113,6 @@
             <groupId>io.qameta.allure</groupId>
             <artifactId>allure-selenide</artifactId>
         </dependency>
-        <!-- Add SLF4J API and Logback for logging -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>2.0.13</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>1.5.6</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -147,7 +134,7 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
-            <!-- Configure maven-surefire-plugin for JUnit 5 -->
+            <!-- Configure maven-surefire-plugin for JUnit 5 (https://allurereport.org/docs/junit5/) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
