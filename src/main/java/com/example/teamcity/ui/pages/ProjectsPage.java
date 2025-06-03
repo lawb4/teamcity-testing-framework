@@ -14,16 +14,17 @@ import static com.codeborne.selenide.Selenide.$$;
 public class ProjectsPage extends BasePage {
     private static final String PROJECTS_URL = "/favorite/projects";
 
-    private ElementsCollection projectElements = $$("div[class*='Subproject__container']");
+    private final ElementsCollection projectElements = $$("div[class*='Subproject__summaryWrapper']");
 
-    private SelenideElement header = $(".MainPanel__router--gF > div");
+    private final SelenideElement header = $(".MainPanel__router--gF > div");
 
     public ProjectsPage() {
         header.shouldBe(Condition.visible, BASE_WAITING);
     }
 
     public static ProjectsPage open() {
-        return Selenide.open(PROJECTS_URL, ProjectsPage.class);
+        Selenide.open(PROJECTS_URL, ProjectsPage.class);
+        return Selenide.page(ProjectsPage.class);
     }
 
     public List<ProjectElement> getProjects() {

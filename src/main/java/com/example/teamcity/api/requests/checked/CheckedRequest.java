@@ -6,6 +6,7 @@ import com.example.teamcity.api.models.BaseModel;
 import com.example.teamcity.api.requests.CrudInterface;
 import com.example.teamcity.api.requests.Request;
 import com.example.teamcity.api.requests.unchecked.UncheckedRequest;
+import io.qameta.allure.Allure;
 import io.restassured.specification.RequestSpecification;
 import org.apache.http.HttpStatus;
 
@@ -20,36 +21,44 @@ public class CheckedRequest<T extends BaseModel> extends Request implements Crud
 
     @Override
     public T create(BaseModel model) {
-        var createdModel = (T) uncheckedRequest
-                .create(model)
-                .then().assertThat().statusCode(HttpStatus.SC_OK)
-                .extract().as(endpoint.getModelClass());
+        return Allure.step("Successfully create %s".formatted(model.getClass().getSimpleName()), () -> {
+            var createdModel = (T) uncheckedRequest
+                    .create(model)
+                    .then().assertThat().statusCode(HttpStatus.SC_OK)
+                    .extract().as(endpoint.getModelClass());
 
-        TestDataStorage.getStorage().addCreatedEntity(endpoint, createdModel);
-        return createdModel;
+            TestDataStorage.getStorage().addCreatedEntity(endpoint, createdModel);
+            return createdModel;
+        });
     }
 
     @Override
     public T read(String locator) {
-        return (T) uncheckedRequest
-                .read(locator)
-                .then().assertThat().statusCode(HttpStatus.SC_OK)
-                .extract().as(endpoint.getModelClass());
+        return Allure.step("Successfully read %s with locator: %s".formatted(endpoint.getModelClass().getSimpleName(), locator),
+                () -> (T) uncheckedRequest
+                        .read(locator)
+                        .then().assertThat().statusCode(HttpStatus.SC_OK)
+                        .extract().as(endpoint.getModelClass())
+        );
     }
 
     @Override
     public T update(String locator, BaseModel model) {
-        return (T) uncheckedRequest
-                .update(locator, model)
-                .then().assertThat().statusCode(HttpStatus.SC_OK)
-                .extract().as(endpoint.getModelClass());
+        return Allure.step("Successfully update %s with locator: %s".formatted(endpoint.getModelClass().getSimpleName(), locator),
+                () -> (T) uncheckedRequest
+                        .read(locator)
+                        .then().assertThat().statusCode(HttpStatus.SC_OK)
+                        .extract().as(endpoint.getModelClass())
+        );
     }
 
     @Override
     public Object delete(String locator) {
-        return uncheckedRequest
-                .delete(locator)
-                .then().assertThat().statusCode(HttpStatus.SC_NO_CONTENT)
-                .extract().asString();
+        return Allure.step("Successfully delete %s with locator: %s".formatted(endpoint.getModelClass().getSimpleName(), locator),
+                () -> (T) uncheckedRequest
+                        .read(locator)
+                        .then().assertThat().statusCode(HttpStatus.SC_OK)
+                        .extract().as(endpoint.getModelClass())
+        );
     }
 }

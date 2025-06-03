@@ -42,6 +42,7 @@ public class ProjectTest extends BaseApiTest {
                 .isEqualTo(createdProject.getName());
     }
 
+    @Test
     @DisplayName("User should be able to create a project")
     @Tags({@Tag("Positive"), @Tag("CRUD")})
     public void userSuccessfullyCreatesProjectTest() {

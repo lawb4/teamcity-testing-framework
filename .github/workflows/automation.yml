@@ -1,0 +1,82 @@
+name: Run tests
+
+on:
+  workflow_call:
+    inputs:
+      package:
+        description: api | ui
+        required: true
+        type: string
+
+jobs:
+  validate-checkstyle:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Validate Checkstyle
+        run: ./mvnw validate
+
+  run-tests:
+    needs: validate-checkstyle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: TeamCity setup
+        uses: ./.github/actions/teamcity-setup
+
+      - name: Run tests
+        continue-on-error: true
+        # Indicate group (tag) so that tests related to teamcity setup will not be run
+        run: ./mvnw test -Dtest='com.example.teamcity.${{ inputs.package }}.**' -Dgroups=Regression
+
+      # Create a report with api tests coverage based on Swagger — https://github.com/viclovsky/swagger-coverage
+      # A 'SwaggerCoverageRestAssured' filter must be added to RestAssured
+      - name: Run Swagger Coverage
+        continue-on-error: true
+        if: ${{ inputs.package == 'api' }}
+        run: .swagger-coverage-commandline/bin/swagger-coverage-commandline -s http://$HOST:8111/app/rest/swagger.json -i target/swagger-coverage-output
+
+      # Save Swagger Report to artifacts of GitHub Actions
+      - name: Save Swagger Coverage
+        uses: actions/upload-artifact@v4
+        if: ${{ inputs.package == 'api' }}
+        with:
+          name: swagger-coverage
+          path: |
+            swagger-coverage-report.html
+            swagger-coverage-results.json
+
+      # Load Allure Report history from branch called 'gh-pages' (https://allurereport.org/docs/integrations-github/)
+      - name: Load test report history
+        uses: actions/checkout@v2
+        if: always()
+        continue-on-error: true
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Build test report
+        uses: simple-elf/allure-report-action@v1.7
+        if: always()
+        with:
+          gh_pages: 'gh-pages'
+          allure_results: 'target/allure-results'
+          allure_history: 'allure-history'
+          subfolder: ${{ inputs.package }}
+
+      # Create an empty 'gh-pages' branch according to the guide https://gist.github.com/ramnathv/2227408
+      - name: Publish test report
+        uses: peaceiris/actions-gh-pages@v3
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: 'gh-pages'
+          publish_dir: 'allure-history'

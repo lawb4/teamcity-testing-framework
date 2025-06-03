@@ -8,7 +8,7 @@ import static com.codeborne.selenide.Selenide.$;
 public class CreateProjectPage extends CreateBasePage {
     private static final String PROJECT_SHOW_MODE = "createProjectMenu";
 
-    private SelenideElement projectInputName = $("#projectName");
+    private final SelenideElement projectInputName = $("#projectName");
 
     public static CreateProjectPage open() {
         return Selenide.open(CREATE_URL.formatted("_Root", PROJECT_SHOW_MODE), CreateProjectPage.class);
@@ -27,5 +27,6 @@ public class CreateProjectPage extends CreateBasePage {
         projectInputName.val(projectName);
         inputBuildTypeName.val(buildTypeName);
         submitButton.click();
+        Selenide.sleep(1000);
     }
 }

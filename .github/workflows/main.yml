@@ -1,0 +1,45 @@
+name: TeamCity deployment
+
+on: push
+
+jobs:
+  # Build backend and deploy it to stage/review app
+  backend:
+    uses: ./.github/workflows/backend-stage.yml
+
+  # Build frontend and deploy it to stage/review app
+  frontend:
+    uses: ./.github/workflows/frontend-stage.yml
+
+  # Run API tests
+  automation-api:
+    needs:
+      - backend
+      - frontend
+    uses: ./.github/workflows/automation.yml
+    with:
+      package: 'api'
+
+  # Run UI tests
+  automation-ui:
+    needs:
+      - backend
+      - frontend
+    uses: ./.github/workflows/automation.yml
+    with:
+      package: 'ui'
+
+  manual-prod-approval:
+    needs:
+      - automation-api
+      - automation-ui
+    runs-on: ubuntu-latest
+    environment: 'prod'
+    steps:
+      - name: Approve application to production
+        run: echo Approved to production
+
+  # Deploy backend and frontend to prod
+  deploy-prod:
+    needs: manual-prod-approval
+    uses: ./.github/workflows/deploy-prod.yml
